@@ -33,4 +33,5 @@ class AuditEvent
     const ASSET_DAMAGED = 'asset_damaged';
     const ASSET_REPAIRED = 'asset_repaired';
     const ASSET_REPAIR_COMPLETED = 'asset_repair_completed';
+    const ASSET_REPAIR_UPDATED = 'asset_repair_updated';
 }

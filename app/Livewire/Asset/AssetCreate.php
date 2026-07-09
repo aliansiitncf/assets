@@ -30,6 +30,7 @@ class AssetCreate extends Component
 
     public $search = '';
     public $results;
+
     public function mount()
     {
         $this->categories = Category::select('id_category', 'name')->get();
@@ -51,6 +52,7 @@ class AssetCreate extends Component
             ->limit(10)
             ->get();
     }
+
     public function selectComponent($id)
     {
         if (!in_array($id, $this->components)) {
@@ -60,6 +62,7 @@ class AssetCreate extends Component
         $this->search = '';
         $this->results = collect();
     }
+
     public function removeComponent($id)
     {
         $this->components = array_filter($this->components, fn($item) => $item !== $id);
@@ -87,6 +90,7 @@ class AssetCreate extends Component
             'image' => ['nullable', 'image', 'max:2048'],
         ]);
     }
+
     public function store(ImageService $imageService)
     {
         $this->validate([
@@ -102,12 +106,14 @@ class AssetCreate extends Component
         ]);
 
         $imagePath = null;
+
         if ($this->image) {
             $imagePath = $imageService->uploadAssetImage(
                 file: $this->image,
                 assetCode: $this->asset_code,
             );
         }
+
         $asset = Asset::create([
             'asset_code' => $this->asset_code,
             'image_path' => $imagePath,
@@ -123,6 +129,7 @@ class AssetCreate extends Component
             'details' => $this->details,
             'moved_at' => $this->moved_at,
         ]);
+
         AuditService::log(
             AuditEvent::ASSET_CREATED,
             'asset',
@@ -132,6 +139,7 @@ class AssetCreate extends Component
                 'name' => $this->name,
             ]
         );
+
         return redirect()->to('/assets')->with('message', 'Asset created successfully.');
     }
 
@@ -139,6 +147,7 @@ class AssetCreate extends Component
     {
         $this->image = null;
     }
+
     public function render()
     {
         return view('livewire.asset.asset-create');

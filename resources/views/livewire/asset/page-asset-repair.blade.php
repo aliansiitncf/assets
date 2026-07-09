@@ -36,49 +36,54 @@
                     <th>Image</th>
                     <th>Location</th>
                     <th>Status</th>
-                    <th>Started At</th>
-                    <th>Completed At</th>
+                    <th>Out Service</th>
+                    <th>In Service</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($assetRepairs as $assetRepair)
-                <tr>
-                    <td>{{ $loop->iteration + ($assetRepairs->currentPage() - 1) * $assetRepairs->perPage() }}</td>
-                    <td>{{ $assetRepair->asset->asset_code }}</td>
-                    <td>{{ $assetRepair->asset->name }}</td>
-                    <td>{{ $assetRepair->repair_note }}</td>
-                    <td>
-                        @if ($assetRepair->image_path)
-                        <img src="{{ Storage::url($assetRepair->image_path) }}" alt="Repair Image"
-                            class="w-16 h-16 object-cover rounded">
-                        @else
-                        empty image
-                        @endif
-                    </td>
-                    <td>{{ $assetRepair->asset->latestLocation->location->name ?? '-' }}</td>
-                    @if ($assetRepair->status === 'In Progress')
-                    <td class="badge badge-xs badge-primary mt-7">{{ $assetRepair->status }}</td>
-                    @else
-                    <td class="badge badge-xs badge-success mt-7">{{ $assetRepair->status }}</td>
-                    @endif
-                    <td>{{ $assetRepair->started_at }}</td>
-                    <td>{{ $assetRepair->completed_at }}</td>
-                    @if ($assetRepair->status === 'In Progress')
-                    <td>
-                        <button class="btn btn-success btn-sm"
-                            wire:click="completeRepair({{ $assetRepair->id_asset_repair }})">Repair Completed</button>
-                    </td>
-                    @else
-                    <td></td>
-                    @endif
-                </tr>
+                    <tr>
+                        <td>{{ $loop->iteration + ($assetRepairs->currentPage() - 1) * $assetRepairs->perPage() }}</td>
+                        <td>{{ $assetRepair->asset->asset_code }}</td>
+                        <td>{{ $assetRepair->asset->name }}</td>
+                        <td>{{ $assetRepair->repair_note }}</td>
+                        <td>
+                            @if ($assetRepair->image_path)
+                                <img src="{{ Storage::url($assetRepair->image_path) }}" alt="Repair Image"
+                                    class="w-16 h-16 object-cover rounded">
+                            @else
+                                <span class="text-gray-400 text-xs">empty image</span>
+                            @endif
+                        </td>
+                        <td>{{ $assetRepair->asset->latestLocation->location->name ?? '-' }}</td>
+                        <td>
+                            <span
+                                class="badge badge-xs {{ $assetRepair->status === 'In Progress' ? 'badge-primary' : 'badge-success' }}">
+                                {{ $assetRepair->status }}
+                            </span>
+                        </td>
+                        <td>{{ $assetRepair->started_at ? \Carbon\Carbon::parse($assetRepair->started_at)->format('d M Y') : '-' }}
+                        </td>
+                        <td>{{ $assetRepair->completed_at ? \Carbon\Carbon::parse($assetRepair->completed_at)->format('d M Y') : '-' }}
+                        </td>
+                        <td class="flex gap-2">
+                            <a href="{{ route('asset.repair.edit', $assetRepair->id_asset_repair) }}" wire:navigate
+                                class="btn btn-success btn-sm">
+                                Edit
+                            </a>
+                            <button type="button" wire:click="showDetail({{ $assetRepair->id_asset_repair }})"
+                                class="btn btn-ghost btn-sm">
+                                Detail
+                            </button>
+                        </td>
+                    </tr>
                 @empty
-                <tr>
-                    <td colspan="9" class="text-center text-gray-500">
-                        No asset Repair found
-                    </td>
-                </tr>
+                    <tr>
+                        <td colspan="10" class="text-center text-gray-500">
+                            No asset Repair found
+                        </td>
+                    </tr>
                 @endforelse
             </tbody>
         </table>
@@ -87,4 +92,5 @@
         </div>
     </div>
     @include('livewire.asset.asset-repair-modalPDF')
+    @include('livewire.asset.asset-repair-modal-detail')
 </div>

@@ -11,10 +11,13 @@ class Asset extends Model
     use HasFactory;
 
     protected $table = "assets";
+
     protected $guarded = [
         'id_asset'
     ];
+
     protected $primaryKey = 'id_asset';
+
     // protected $fillable = [
     //     'asset_code',
     //     'name',
@@ -22,6 +25,7 @@ class Asset extends Model
     //     'category_id',
     //     'status',
     // ];
+
     protected $casts = [
         'purchase_date' => 'date',
         'category_id' => 'integer',

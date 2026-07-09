@@ -44,6 +44,7 @@ class AssetPage extends Component
     // sort
     public $sortField = 'asset_code';
     public $sortDirection = 'desc';
+
     // filter
     public $filterCategory = '';
     public $filterCategoryDownload = '';
@@ -51,25 +52,23 @@ class AssetPage extends Component
     public $filterLocationDownload = '';
     public $startDate = null;
     public $endDate = null;
+
     // QR Code
     public $showQrModal = false;
     public $assetQr;
+
     // Damage Modal
     public $showDamageModal = false;
     public $damageNotes = '';
     public $damageAssetId = null;
     public $damageImage = null;
-    // Repair Modal
-    public $showRepairModal = false;
-    public $repairNotes = '';
-    public $repairAssetId = null;
-    public $repairImage = null;
-    public $started_at = null;
+
     // export
     public $showModalPDF = false;
     public $showModalDetailAset = false;
     public $selectedAsset = null;
     protected $listeners = ['assetUpdated' => 'refreshAsset', 'closeDetailModal' => 'closeDetail'];
+
     // methods general
     public function sortBy($field)
     {
@@ -126,6 +125,7 @@ class AssetPage extends Component
     {
         $this->editIndex = '';
     }
+
     public function delete($id)
     {
         $this->requirePermission('hapus aset');
@@ -142,6 +142,11 @@ class AssetPage extends Component
         );
         $this->resetPageIfEmpty();
         return redirect()->route('assets')->with('message', 'Asset deleted successfully.');
+    }
+
+    public function repairAsset($asset)
+    {
+        return redirect()->route('asset.repair.create', $asset);
     }
 
     public function showDetail($id)
@@ -170,10 +175,12 @@ class AssetPage extends Component
             ->generate($this->asset->asset_code));
         $this->showQrModal = true;
     }
+
     public function closeQrModal()
     {
         $this->reset(['showQrModal', 'asset', 'assetQr']);
     }
+
     // methods Damaged Asset
     public function openDamageModal($id)
     {
@@ -184,10 +191,12 @@ class AssetPage extends Component
         $this->damageImage = null;
         $this->showDamageModal = true;
     }
+
     public function closeDamageModal()
     {
         $this->reset(['showDamageModal', 'damageNotes', 'damageAssetId', 'damageImage', 'asset']);
     }
+
     public function saveDamage(ImageService $imageService)
     {
         $this->validate([
@@ -229,75 +238,25 @@ class AssetPage extends Component
     {
         $this->damageImage = null;
     }
-    // methods repair asset
-    public function openRepairModal($id)
-    {
-        $this->requirePermission('tandai aset perbaikan');
-        $this->asset = Asset::findOrFail($id);
-        $this->repairAssetId = $this->asset->id_asset;
-        $this->repairNotes = '';
-        $this->repairImage = null;
-        $this->started_at = null;
-        $this->showRepairModal = true;
-    }
-    public function closeRepairModal()
-    {
-        $this->reset(['showRepairModal', 'repairNotes', 'repairImage',  'repairAssetId', 'asset']);
-    }
-    public function saveRepair(ImageService $imageService)
-    {
-        $this->validate([
-            'repairNotes' => 'required|string',
-            'repairImage' => 'required|image|max:2048', // Maksimal 2MB
-        ]);
-        $imagePath = null;
-        if ($this->repairImage) {
-            $imagePath = $imageService->uploadRepairAssetImage(
-                file: $this->repairImage,
-                repairAssetId: 'Repair_' . $this->repairAssetId . '_' . time()
-            );
-        }
-        // Simpan data perbaikan ke tabel repair
-        AssetRepair::create([
-            'asset_id' => $this->repairAssetId,
-            'repair_note' => $this->repairNotes,
-            'image_path' => $imagePath,
-            'started_at' => now(),
-        ]);
-        Asset::where('id_asset', $this->repairAssetId)->update([
-            'condition' => 'Perbaikan',
-        ]);
-        AuditService::log(
-            AuditEvent::ASSET_REPAIRED,
-            'asset',
-            $this->asset,
-            [
-                'asset_code' => $this->asset->asset_code,
-                'name' => $this->asset->name,
-                'repair_note' => $this->repairNotes
-            ]
-        );
-        $this->closeRepairModal();
-    }
-    public function resetImageRepair()
-    {
-        $this->repairImage = null;
-    }
+
     public function assetStatistics()
     {
         return Asset::select('condition', DB::raw('COUNT(*) as total'))
             ->groupBy('condition')
             ->pluck('total', 'condition');
     }
+
     // methods export
     public function exportExcel()
     {
         return (new AssetsExport)->download('assets.xlsx');
     }
+
     public function openModalPDF()
     {
         $this->showModalPDF = true;
     }
+
     public function closeModalPDF()
     {
         $this->reset([
@@ -308,6 +267,7 @@ class AssetPage extends Component
             'endDate'
         ]);
     }
+
     public function downloadPdf()
     {
         $assets = Asset::filter(

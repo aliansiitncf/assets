@@ -5,6 +5,8 @@ use App\Http\Controllers\SsoClientController;
 use App\Livewire\Asset\AssetCreate;
 use App\Livewire\Asset\AssetEdit;
 use App\Livewire\Asset\AssetPage;
+use App\Livewire\Asset\AssetRepair;
+use App\Livewire\Asset\AssetRepairEdit;
 use App\Livewire\Asset\AssetReport;
 use App\Livewire\Asset\PageAssetDamage;
 use App\Livewire\Asset\PageAssetRepair;
@@ -63,8 +65,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/assets/create', AssetCreate::class)->name('asset.create');
     Route::get('/assets/{asset}/edit', AssetEdit::class)->name('asset.edit');
     Route::get('/assets-damage', PageAssetDamage::class)->name('asset.damage');
-    Route::get('/assets/repair', PageAssetRepair::class)->name('asset.repair');
     Route::get('/assets-report', AssetReport::class)->name('asset-report');
+
+    // Asset Repair Management
+    Route::get('/assets/repair', PageAssetRepair::class)->name('asset.repair');
+    Route::get('/assets/repair/create/{asset}', AssetRepair::class)->name('asset.repair.create');
+    Route::get('/assets/repair/{assetRepair}/edit', AssetRepairEdit::class)->name('asset.repair.edit');
 
     // PAGE SETUP
     Route::get('page-setup', PageSetup::class)->name('page-setup');

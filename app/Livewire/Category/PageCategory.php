@@ -128,6 +128,7 @@ class PageCategory extends Component
     }
 
 
+    // edit category
     public function edit($id)
     {
         $category = Category::findOrFail($id);

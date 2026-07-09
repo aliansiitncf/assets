@@ -4,7 +4,7 @@ namespace App\Livewire\Asset;
 
 use App\Enums\AuditEvent;
 use App\Models\Asset;
-use App\Models\AssetRepair;
+use App\Models\AssetRepair as AssetRepairModel;
 use App\Services\AuditService;
 use App\Traits\HasAuthorization;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -24,6 +24,10 @@ class PageAssetRepair extends Component
     public $startDate;
     public $endDate;
 
+    // props detail modal repair
+    public $isDetailOpen = false;
+    public $selectedRepair = null;
+
     public function mount()
     {
         $this->requirePermission('lihat aset perbaikan');
@@ -31,7 +35,7 @@ class PageAssetRepair extends Component
 
     public function completeRepair($repairId)
     {
-        $assetRepair = AssetRepair::find($repairId);
+        $assetRepair = AssetRepairModel::find($repairId);
         if ($assetRepair && $assetRepair->status === 'In Progress') {
             $assetRepair->status = 'Completed';
             $assetRepair->completed_at = now();
@@ -50,12 +54,15 @@ class PageAssetRepair extends Component
                 'asset_code' => $assetRepair->asset->asset_code,
                 'name' => $assetRepair->asset->name,
                 'completed_at' => $assetRepair->completed_at->format('d M Y H:i')
-            ]);
+            ]
+        );
     }
+
     public function openModalPDF()
     {
         $this->showModalPDF = true;
     }
+
     public function closeModalPDF()
     {
         $this->reset([
@@ -64,10 +71,11 @@ class PageAssetRepair extends Component
             'endDate'
         ]);
     }
+
     public function downloadPdf()
     {
         // ✅ FILTER (pakai when di model)
-        $assetRepairs = AssetRepair::filter(
+        $assetRepairs = AssetRepairModel::filter(
             $this->startDate,
             $this->endDate
         )->get();
@@ -88,9 +96,10 @@ class PageAssetRepair extends Component
             $filename
         );
     }
+
     public function render()
     {
-        $assetRepairs = AssetRepair::with('asset')
+        $assetRepairs = AssetRepairModel::with('asset')
             ->when($this->search, function ($query) {
                 $query->whereHas('asset', function ($q) {
                     $q->where('asset_code', 'like', '%' . $this->search . '%')
@@ -101,5 +110,18 @@ class PageAssetRepair extends Component
         return view('livewire.asset.page-asset-repair', [
             'assetRepairs' => $assetRepairs
         ]);
+    }
+
+    public function showDetail($id)
+    {
+        $this->selectedRepair = AssetRepairModel::with(['asset.latestLocation.location', 'components'])
+            ->findOrFail($id);
+        $this->isDetailOpen = true;
+    }
+
+    public function closeDetailModal()
+    {
+        $this->isDetailOpen = false;
+        $this->selectedRepair = null;
     }
 }

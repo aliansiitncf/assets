@@ -14,7 +14,7 @@
 
 <body>
     <div class="drawer lg:drawer-open bg-base-200">
-        <input id="my-drawer-4" type="checkbox" class="drawer-toggle" />
+        <input id="my-drawer-4" type="checkbox" class="drawer-toggle" checked />
         <div class="drawer-content h-screen lg:py-2 lg:pr-2 overflow-hidden ">
             <div class="flex w-full flex-col bg-base-100 h-full rounded-xl overflow-hidden">
                 <div class="flex items-center gap-4 p-2 shrink-0">
@@ -30,7 +30,7 @@
                         </svg>
                     </label>
                     <x-breadcrumbs />
-                    
+
                     <div class="flex items-center gap-2 ml-auto">
                         <livewire:asset.asset-scanner />
                         <x-theme-toggle />

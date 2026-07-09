@@ -7,11 +7,11 @@ const LIGHT_THEME = "bumblebee";
 
 function initThemeToggle() {
     const toggle = document.getElementById("theme-toggle");
-    if (!toggle) return;
 
     const savedTheme = localStorage.getItem("theme") ?? LIGHT_THEME;
-
     document.documentElement.setAttribute("data-theme", savedTheme);
+
+    if (!toggle) return;
 
     toggle.checked = savedTheme === DARK_THEME;
 
@@ -25,9 +25,8 @@ function initThemeToggle() {
     });
 }
 
-// ✅ Full page load
+// Full page load
 document.addEventListener("DOMContentLoaded", initThemeToggle);
 
-// ✅ Setiap kali Livewire update DOM
-document.addEventListener("livewire:initialized", initThemeToggle);
-document.addEventListener("livewire:updated", initThemeToggle);
+// Setiap kali Livewire selesai berpindah halaman (wire:navigate)
+document.addEventListener("livewire:navigated", initThemeToggle);

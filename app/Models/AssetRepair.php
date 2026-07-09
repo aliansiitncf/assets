@@ -14,6 +14,7 @@ class AssetRepair extends Model
     protected $primaryKey = 'id_asset_repair';
 
     protected $casts = [
+        'started_at' => 'datetime',
         'completed_at' => 'datetime'
     ];
 
@@ -24,8 +25,15 @@ class AssetRepair extends Model
 
     public function scopeFilter($query, $startDate = null, $endDate = null)
     {
-        return $query->when($startDate && $endDate, function ($query) use($startDate, $endDate) {
+        return $query->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
             $query->whereBetween('completed_at', [$startDate, $endDate]);
         });
+    }
+
+    public function components()
+    {
+        return $this->belongsToMany(Component::class, 'services_components', 'asset_repair_id', 'component_id')
+            ->withPivot('merk', 'date', 'store', 'technician', 'qty', 'price')
+            ->withTimestamps();
     }
 }
