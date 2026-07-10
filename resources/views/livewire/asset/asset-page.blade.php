@@ -13,71 +13,73 @@
     @endif
     <h1 class="text-2xl font-bold">Assets Management</h1>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Asset Baik -->
-        <div class="stats shadow bg-yellow-400 w-full mt-2">
-            <div class="stat">
-                <div class="stat-figure">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="w-10 h-10 text-green-600">
+
+        {{-- Asset Baik --}}
+        <div
+            class="rounded-2xl border border-green-200 bg-green-50 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-semibold text-green-800">Total Asset Normal</p>
+                    <p class="mt-2 text-3xl font-bold text-green-700">
+                        {{ $assetStats['Baik'] ?? 0 }}
+                    </p>
+                    <p class="mt-1 text-xs text-green-700/70">Dari total seluruh asset</p>
+                </div>
+
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor" class="h-6 w-6 text-green-600">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" />
                     </svg>
                 </div>
-                <div class="stat-title font-semibold text-green-800">
-                    Total Asset Normal
-                </div>
-                <div class="stat-value text-green-600">
-                    {{ $assetStats['Baik'] ?? 0 }}
-                </div>
-                <div class="stat-desc font-semibold text-green-800">
-                    Dari Total Seluruh Asset
-                </div>
             </div>
         </div>
 
-        <!-- Asset Perbaikan -->
-        <div class="stats shadow bg-yellow-400 w-full mt-2">
-            <div class="stat">
-                <div class="stat-figure">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="w-10 h-10 text-blue-600">
+        {{-- Asset Perbaikan --}}
+        <div
+            class="rounded-2xl border border-blue-200 bg-blue-50 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-semibold text-blue-800">Total Asset Perbaikan</p>
+                    <p class="mt-2 text-3xl font-bold text-blue-700">
+                        {{ $assetStats['Perbaikan'] ?? 0 }}
+                    </p>
+                    <p class="mt-1 text-xs text-blue-700/70">Dari total seluruh asset</p>
+                </div>
+
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor" class="h-6 w-6 text-blue-600">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                     </svg>
                 </div>
-                <div class="stat-title font-semibold text-blue-800 mt-2">
-                    Total Asset Perbaikan
-                </div>
-                <div class="stat-value text-blue-600">
-                    {{ $assetStats['Perbaikan'] ?? 0 }}
-                </div>
-                <div class="stat-desc font-semibold text-blue-800">
-                    Dari Total Seluruh Asset
-                </div>
             </div>
         </div>
 
-        <!-- Asset Rusak -->
-        <div class="stats shadow bg-yellow-400 w-full mt-2">
-            <div class="stat">
-                <div class="stat-figure">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="w-10 h-10 text-red-800">
+        {{-- Asset Rusak --}}
+        <div
+            class="rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-semibold text-red-800">Total Asset Rusak</p>
+                    <p class="mt-2 text-3xl font-bold text-red-700">
+                        {{ $assetStats['Rusak'] ?? 0 }}
+                    </p>
+                    <p class="mt-1 text-xs text-red-700/70">Dari total seluruh asset</p>
+                </div>
+
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor" class="h-6 w-6 text-red-600">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
                     </svg>
                 </div>
-                <div class="stat-title font-semibold text-red-800 mt-2">
-                    Total Asset Rusak
-                </div>
-                <div class="stat-value text-red-600">
-                    {{ $assetStats['Rusak'] ?? 0 }}
-                </div>
-                <div class="stat-desc font-semibold text-red-800">
-                    Dari Total Seluruh Asset
-                </div>
             </div>
         </div>
+
     </div>
     <div class="flex flex-col lg:flex-row lg:justify-between gap-3 my-3">
         <div class=" flex gap-2 items-center">

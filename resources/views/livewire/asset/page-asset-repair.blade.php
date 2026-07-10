@@ -1,32 +1,61 @@
 <div class="w-full">
     <h1 class="text-2xl font-bold">Asset Repairs</h1>
-    <div class="flex justify-between items-center mb-2">
-        <div class="my-4 flex gap-2 items-center">
-            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search Assets..."
-                class="input input-bordered w-full" />
-            <select wire:model.live="perPage" class="select select-bordered w-36">
-                <option value="5">5 / page</option>
-                <option value="10">10 / page</option>
-                <option value="25">25 / page</option>
-                <option value="50">50 / page</option>
-            </select>
+
+    @include('livewire.asset.asset-repair-charts')
+
+    <div class="flex flex-wrap justify-between items-end gap-3 mb-2">
+        <div class="my-4 flex flex-wrap gap-3 items-end">
+            <div class="min-w-[220px] flex-1">
+                <label class="label py-1"><span class="label-text text-xs">Cari Asset</span></label>
+                <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search Assets..."
+                    class="input input-bordered w-full" />
+            </div>
+
+            <div>
+                <label class="label py-1"><span class="label-text text-xs">Dari tanggal</span></label>
+                <input type="date" wire:model.live="startDate" class="input input-bordered w-full">
+            </div>
+
+            <div>
+                <label class="label py-1"><span class="label-text text-xs">Sampai tanggal</span></label>
+                <input type="date" wire:model.live="endDate" class="input input-bordered w-full">
+            </div>
+
+            <div>
+                <label class="label py-1"><span class="label-text text-xs">Per halaman</span></label>
+                <select wire:model.live="perPage" class="select select-bordered w-full">
+                    <option value="5">5 / page</option>
+                    <option value="10">10 / page</option>
+                    <option value="25">25 / page</option>
+                    <option value="50">50 / page</option>
+                </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button type="button" wire:click="resetFilter" class="btn btn-outline">
+                    Reset Filter
+                </button>
+
+                <span wire:loading wire:target="search, startDate, endDate, resetFilter"
+                    class="loading loading-spinner loading-sm"></span>
+            </div>
+            <button class="btn btn-secondary" wire:click="openModalPDF">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-file-type-pdf">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                    <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />
+                    <path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" />
+                    <path d="M17 18h2" />
+                    <path d="M20 15h-3v6" />
+                    <path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1" />
+                </svg>
+            </button>
         </div>
-        <button class="btn btn-secondary" wire:click="openModalPDF">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="icon icon-tabler icons-tabler-outline icon-tabler-file-type-pdf">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />
-                <path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" />
-                <path d="M17 18h2" />
-                <path d="M20 15h-3v6" />
-                <path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1" />
-            </svg>
-        </button>
     </div>
     <div class="overflow-x-auto shadow-md rounded-box border border-base-content/5 mb-4">
-        <table class="table table-zebra w-full">
+        <table class="table table-xs table-zebra w-full">
             <thead>
                 <tr>
                     <th>No</th>
@@ -69,11 +98,11 @@
                         </td>
                         <td class="flex gap-2">
                             <a href="{{ route('asset.repair.edit', $assetRepair->id_asset_repair) }}" wire:navigate
-                                class="btn btn-success btn-sm">
+                                class="btn btn-success btn-xs">
                                 Edit
                             </a>
                             <button type="button" wire:click="showDetail({{ $assetRepair->id_asset_repair }})"
-                                class="btn btn-ghost btn-sm">
+                                class="btn btn-ghost btn-xs">
                                 Detail
                             </button>
                         </td>
