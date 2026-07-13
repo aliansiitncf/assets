@@ -4,7 +4,30 @@
     @include('livewire.asset.asset-repair-charts')
 
     <div class="flex flex-wrap justify-between items-end gap-3 mb-2">
-        <div class="my-4 flex flex-wrap gap-3 items-end">
+        <div class="mt-4 flex flex-wrap gap-3 items-end">
+            <div>
+                <label class="label py-1"><span class="label-text text-xs">Lokasi Aset</span></label>
+                <select wire:model.live="locationFilter" class="select select-bordered w-full">
+                    <option value="">Semua Lokasi</option>
+                    @foreach ($locations as $location)
+                        <option value="{{ $location->id_location }}">{{ $location->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label class="label py-1"><span class="label-text text-xs">Kategori Aset</span></label>
+                <select wire:model.live="categoryFilter" class="select select-bordered w-full">
+                    <option value="">Semua Kategori</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->id_category }}">
+                            {{ $category->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        <div class="my-1 flex flex-wrap gap-3 items-end">
             <div class="min-w-[220px] flex-1">
                 <label class="label py-1"><span class="label-text text-xs">Cari Asset</span></label>
                 <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search Assets..."
@@ -14,6 +37,11 @@
             <div>
                 <label class="label py-1"><span class="label-text text-xs">Dari tanggal</span></label>
                 <input type="date" wire:model.live="startDate" class="input input-bordered w-full">
+            </div>
+
+            <div class="flex flex-col">
+                <label class="label py-1"><span class="label-text text-xs invisible">-</span></label>
+                <span class="text-gray-400 text-sm h-10 flex items-center justify-center px-1">&ndash;</span>
             </div>
 
             <div>

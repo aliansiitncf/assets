@@ -30,14 +30,21 @@ class PageAssetRepair extends Component
 
     // Props untuk filter kategori
     public $categoryFilter = '';
+    public $categories = [];
 
     // props detail modal repair
     public $isDetailOpen = false;
     public $selectedRepair = null;
 
+    // props filter location
+    public $locationFilter = '';
+    public $locations = [];
+
     public function mount()
     {
         $this->requirePermission('lihat aset perbaikan');
+        $this->locations = \App\Models\Location::all();
+        $this->categories = \App\Models\Category::orderBy('name')->get();
     }
 
     public function completeRepair($repairId)
@@ -114,6 +121,16 @@ class PageAssetRepair extends Component
                         ->orWhere('asset_code', 'like', "%{$this->search}%");
                 });
             })
+            ->when($this->locationFilter, function ($query) {
+                $query->whereHas('asset.latestLocation.location', function ($q) {
+                    $q->where('id_location', $this->locationFilter);
+                });
+            })
+            ->when($this->categoryFilter, function ($query) {
+                $query->whereHas('asset.category', function ($q) {
+                    $q->where('id_category', $this->categoryFilter);
+                });
+            })
             ->when($this->startDate, fn($query) => $query->whereDate('started_at', '>=', $this->startDate))
             ->when($this->endDate, fn($query) => $query->whereDate('started_at', '<=', $this->endDate))
             ->latest('started_at')
@@ -149,9 +166,21 @@ class PageAssetRepair extends Component
         $this->dispatch('charts-updated');
     }
 
+    public function updatedLocationFilter()
+    {
+        $this->resetPage();
+        $this->dispatch('charts-updated');
+    }
+
+    public function updatedCategoryFilter()
+    {
+        $this->resetPage();
+        $this->dispatch('charts-updated');
+    }
+
     public function resetFilter()
     {
-        $this->reset(['startDate', 'endDate', 'categoryFilter', 'search']);
+        $this->reset(['startDate', 'endDate', 'categoryFilter', 'search', 'locationFilter', 'perPage']);
         $this->resetPage();
         $this->dispatch('charts-updated');
     }
@@ -163,6 +192,12 @@ class PageAssetRepair extends Component
         $query = AssetRepairModel::select('asset_id', DB::raw('SUM(poin) as total_poin'))
             ->groupBy('asset_id')
             ->with('asset:id_asset,asset_code')
+            ->when($this->locationFilter, fn($q) => $q->whereHas('asset.latestLocation.location', function ($q) {
+                $q->where('id_location', $this->locationFilter);
+            }))
+            ->when($this->categoryFilter, fn($q) => $q->whereHas('asset.category', function ($q) {
+                $q->where('id_category', $this->categoryFilter);
+            }))
             ->when($this->startDate, fn($q) => $q->whereDate('started_at', '>=', $this->startDate))
             ->when($this->endDate, fn($q) => $q->whereDate('started_at', '<=', $this->endDate));
 
@@ -177,6 +212,12 @@ class PageAssetRepair extends Component
     public function getBiayaChartDataProperty()
     {
         $query = AssetRepairModel::with(['asset:id_asset,asset_code', 'components'])
+            ->when($this->locationFilter, fn($q) => $q->whereHas('asset.latestLocation.location', function ($q) {
+                $q->where('id_location', $this->locationFilter);
+            }))
+            ->when($this->categoryFilter, fn($q) => $q->whereHas('asset.category', function ($q) {
+                $q->where('id_category', $this->categoryFilter);
+            }))
             ->when($this->startDate, fn($q) => $q->whereDate('started_at', '>=', $this->startDate))
             ->when($this->endDate, fn($q) => $q->whereDate('started_at', '<=', $this->endDate));
 
