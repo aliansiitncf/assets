@@ -123,6 +123,38 @@ class AssetRepairEdit extends Component
                     );
                 }
 
+                // Snapshot data lama sebelum diupdate, untuk dibandingkan
+                $before = $this->repair->only([
+                    'repair_note',
+                    'started_at',
+                    'completed_at',
+                    'hm_km',
+                    'poin',
+                    'status',
+                ]);
+
+                // Snapshot komponen lama (per component_id) sebelum di-sync
+                $oldComponents = $this->repair->components()
+                    ->get()
+                    ->mapWithKeys(fn($c) => [
+                        $c->id_component => [
+                            'merk'       => $c->pivot->merk,
+                            'qty'        => (int) $c->pivot->qty,
+                            'price'      =>
+                            (float) $c->pivot->price == (int) $c->pivot->price
+                                ? (int) $c->pivot->price
+                                : (float) $c->pivot->price,
+                            'date'       => $c->pivot->date,
+                            'technician' => $c->pivot->technician,
+                            'store'      => $c->pivot->store,
+                            'subtotal'   =>
+                            (float) $c->pivot->subtotal == (int) $c->pivot->subtotal
+                                ? (int) $c->pivot->subtotal
+                                : (float) $c->pivot->subtotal,
+                        ],
+                    ])
+                    ->toArray();
+
                 // Update data perbaikan utama
                 $this->repair->update([
                     'repair_note'  => $this->repairNotes,
@@ -133,6 +165,22 @@ class AssetRepairEdit extends Component
                     'poin'         => $this->poin,
                     'status'       => $this->in_of_service ? 'Completed' : 'In Progress',
                 ]);
+
+                // Hanya kolom yang benar-benar berubah setelah update()
+                $changedFields = $this->repair->getChanges();
+
+                $auditChanges = [];
+                foreach ($changedFields as $key => $value) {
+                    // updated_at ikut berubah tiap kali update, tidak perlu dicatat
+                    if ($key === 'updated_at') {
+                        continue;
+                    }
+
+                    $auditChanges[$key] = [
+                        'before' => $before[$key] ?? null,
+                        'after' => $value,
+                    ];
+                }
 
                 // Sinkronkan komponen: yang dihapus dari form akan ikut
                 // terhapus dari pivot, yang baru akan ditambahkan/diupdate
@@ -148,32 +196,84 @@ class AssetRepairEdit extends Component
                         'subtotal'   => $item['subtotal'] ?? ($item['qty'] * $item['harga']),
                     ];
                 }
-                $this->repair->components()->sync($syncData);
+                $syncResult = $this->repair->components()->sync($syncData);
 
-                if ($this->in_of_service) {
-                    // Update kondisi asset jika perbaikan selesai
+                $componentNames = ComponentModel::whereIn('id_component', array_merge(
+                    $syncResult['attached'],
+                    $syncResult['detached'],
+                    $syncResult['updated']
+                ))->pluck('name_component', 'id_component');
+
+                $auditComponents = [];
+
+                if (!empty($syncResult['attached'])) {
+                    $auditComponents['added'] = collect($syncResult['attached'])
+                        ->map(fn($id) => $componentNames[$id] ?? $id)
+                        ->values()
+                        ->all();
+                }
+
+                if (!empty($syncResult['detached'])) {
+                    $auditComponents['removed'] = collect($syncResult['detached'])
+                        ->map(fn($id) => $componentNames[$id] ?? $id)
+                        ->values()
+                        ->all();
+                }
+
+                $updatedComponents = [];
+
+                foreach ($syncResult['updated'] as $id) {
+
+                    $before = $this->normalizeComponent($oldComponents[$id] ?? []);
+                    $after  = $this->normalizeComponent($syncData[$id] ?? []);
+
+                    // Skip jika tidak ada perubahan
+                    if ($before == $after) {
+                        continue;
+                    }
+
+                    $updatedComponents[] = [
+                        'component' => $componentNames[$id] ?? $id,
+                        'before'    => $before,
+                        'after'     => $after,
+                    ];
+                }
+
+                if (!empty($updatedComponents)) {
+                    $auditComponents['updated'] = $updatedComponents;
+                }
+
+                $newCondition = $this->in_of_service ? 'Baik' : 'Perbaikan';
+
+                // Hanya update kondisi asset kalau memang berubah
+                if ($this->asset->condition !== $newCondition) {
                     Asset::where('id_asset', $this->repairAssetId)->update([
-                        'condition' => 'Baik',
-                    ]);
-                } else {
-                    // Update kondisi asset jika perbaikan sedang berlangsung
-                    Asset::where('id_asset', $this->repairAssetId)->update([
-                        'condition' => 'Perbaikan',
+                        'condition' => $newCondition,
                     ]);
                 }
 
-                // Catat audit log
-                AuditService::log(
-                    AuditEvent::ASSET_REPAIR_UPDATED,
-                    'asset',
-                    $this->asset,
-                    [
-                        'asset_code'  => $this->asset->asset_code,
-                        'name'        => $this->asset->name,
-                        'repair_note' => $this->repairNotes,
-                        'components'  => $this->repairComponents,
-                    ]
-                );
+                // Catat audit log hanya jika ada perubahan field atau komponen
+                if (!empty($auditChanges) || !empty($auditComponents)) {
+                    $logPayload = [
+                        'asset_code' => $this->asset->asset_code,
+                        'name' => $this->asset->name,
+                    ];
+
+                    if (!empty($auditChanges)) {
+                        $logPayload['changes'] = $auditChanges;
+                    }
+
+                    if (!empty($auditComponents)) {
+                        $logPayload['components'] = $auditComponents;
+                    }
+
+                    AuditService::log(
+                        AuditEvent::ASSET_REPAIR_UPDATED,
+                        'asset_repair',
+                        $this->asset,
+                        $logPayload
+                    );
+                }
             });
 
             $this->reset(['repairImage']);
@@ -254,5 +354,18 @@ class AssetRepairEdit extends Component
     public function closeRepairModal()
     {
         $this->isOpen = false;
+    }
+
+    private function normalizeComponent(array $component): array
+    {
+        return [
+            'merk'       => $component['merk'] ?? null,
+            'qty'        => (int) ($component['qty'] ?? 0),
+            'price'      => (int) ($component['price'] ?? 0),
+            'date'       => $component['date'] ?? '',
+            'technician' => $component['technician'] ?? '',
+            'store'      => $component['store'] ?? null,
+            'subtotal'   => (int) ($component['subtotal'] ?? 0),
+        ];
     }
 }

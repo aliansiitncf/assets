@@ -50,250 +50,57 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($logs as $log)
-                <tr>
-                    <td>
-                        {{ $log->causer?->name ?? 'System' }}
-                    </td>
-                    <td>{{ $log->log_name }}</td>
-                    <td>{{ $log->description }}</td>
-                    <td>
-                        @switch($log->event)
-                        {{-- log create asset --}}
-                        @case('asset_created')
-                        @foreach($log->properties as $key => $value)
-                        <div>
-                            <strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong>
-                            @if(is_array($value) || is_object($value))
-                            {{ json_encode($value) }}
-                            @else
-                            {{ $value }}
-                            @endif
-                        </div>
-                        @endforeach
-                        @break
-                        {{-- log update asset --}}
-                        @case('asset_updated')
-                        @if ($log->properties && $log->properties->has('changes'))
-                        <ul>
-                            @foreach($log->properties['changes'] as $field => $change)
-                            <li>
-                                <span class="font-semibold capitalize">{{str_replace('_', ' ', $field)}}</span>:
-                                <div class="ml-4">
-                                    <span class="text-red-600">Before:
-                                        {{ is_array($change['before']) || is_object($change['before']) ? json_encode($change['before']) : $change['before'] }}</span><br>
-                                    <span class="text-green-600">After:
-                                        {{ is_array($change['after']) || is_object($change['after']) ? json_encode($change['after']) : $change['after'] }}</span>
-                                </div>
-                            </li>
-                            @endforeach
-                        </ul>
-                        @endif
-                        @break
-                        {{-- log delete asset --}}
-                        @case('asset_deleted')
-                        @foreach($log->properties as $key => $value)
-                        <div>
-                            <strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong>
-                            @if(is_array($value) || is_object($value))
-                            {{ json_encode($value) }}
-                            @else
-                            {{ $value }}
-                            @endif
-                        </div>
-                        @endforeach
-                        @break
-                        {{-- log location moved from asset --}}
-                        @case('location_moved')
-                        <div>
-                            <div class="font-semibold mb-1">Location Moved Details:</div>
-                            <ul class="list-disc list-inside">
-                                @foreach ($log->properties as $key => $value)
-                                <li>
-                                    <span class="font-semibold capitalize">{{str_replace('_', ' ', $key)}}</span>:
-                                    {{ is_array($value) || is_object($value) ? json_encode($value) : $value }}
-                                </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                        @break
-                        {{-- log category created --}}
-                        @case('category_created')
-                        @foreach($log->properties as $key => $value)
-                        <div>
-                            <strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong>
-                            @if(is_array($value) || is_object($value))
-                            {{ json_encode($value) }}
-                            @else
-                            {{ $value }}
-                            @endif
-                        </div>
-                        @endforeach
-                        @break
-                        {{-- log category updated --}}
-                        @case('category_updated')
-                        @if ($log->properties && $log->properties->has('changes'))
-                        <ul>
-                            @foreach($log->properties['changes'] as $field => $change)
-                            <li>
-                                <span class="font-semibold capitalize">{{str_replace('_', ' ', $field)}}</span>:
-                                <div class="ml-4">
-                                    <span class="text-red-600">Before:
-                                        {{ is_array($change['before']) || is_object($change['before']) ? json_encode($change['before']) : $change['before'] }}</span><br>
-                                    <span class="text-green-600">After:
-                                        {{ is_array($change['after']) || is_object($change['after']) ? json_encode($change['after']) : $change['after'] }}</span>
-                                </div>
-                            </li>
-                            @endforeach
-                        </ul>
-                        @endif
-                        @break
-                        {{-- log category deleted --}}
-                        @case('category_deleted')
-                        @foreach($log->properties as $key => $value)
-                        <div>
-                            <strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong>
-                            @if(is_array($value) || is_object($value))
-                            {{ json_encode($value) }}
-                            @else
-                            {{ $value }}
-                            @endif
-                        </div>
-                        @endforeach
-                        @break
-                        {{-- log component created --}}
-                        @case('component_created')
-                        @foreach($log->properties as $key => $value)
-                        <div>
-                            <strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong>
-                            @if(is_array($value) || is_object($value))
-                            {{ json_encode($value) }}
-                            @else
-                            {{ $value }}
-                            @endif
-                        </div>
-                        @endforeach
-                        @break
-                        {{-- log component updated --}}
-                        @case('component_updated')
-                        @if ($log->properties && $log->properties->has('changes'))
-                        <ul>
-                            @foreach($log->properties['changes'] as $field => $change)
-                            <li>
-                                <span class="font-semibold capitalize">{{str_replace('_', ' ', $field)}}</span>:
-                                <div class="ml-4">
-                                    <span class="text-red-600">Before:
-                                        {{ is_array($change['before']) || is_object($change['before']) ? json_encode($change['before']) : $change['before'] }}</span><br>
-                                    <span class="text-green-600">After:
-                                        {{ is_array($change['after']) || is_object($change['after']) ? json_encode($change['after']) : $change['after'] }}</span>
-                                </div>
-                            </li>
-                            @endforeach
-                        </ul>
-                        @endif
-                        @break
-                        {{-- log component deleted --}}
-                        @case('component_deleted')
-                        @foreach($log->properties as $key => $value)
-                        <div>
-                            <strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong>
-                            @if(is_array($value) || is_object($value))
-                            {{ json_encode($value) }}
-                            @else
-                            {{ $value }}
-                            @endif
-                        </div>
-                        @endforeach
-                        @break
-                        {{-- log location created --}}
-                        @case('location_created')
-                        @foreach($log->properties as $key => $value)
-                        <div>
-                            <strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong>
-                            @if(is_array($value) || is_object($value))
-                            {{ json_encode($value) }}
-                            @else
-                            {{ $value }}
-                            @endif
-                        </div>
-                        @endforeach
-                        @break
-                        {{-- log location updated --}}
-                        @case('location_updated')
-                        @if ($log->properties && $log->properties->has('changes'))
-                        <ul>
-                            @foreach($log->properties['changes'] as $field => $change)
-                            <li>
-                                <span class="font-semibold capitalize">{{str_replace('_', ' ', $field)}}</span>:
-                                <div class="ml-4">
-                                    <span class="text-red-600">Before:
-                                        {{ is_array($change['before']) || is_object($change['before']) ? json_encode($change['before']) : $change['before'] }}</span><br>
-                                    <span class="text-green-600">After:
-                                        {{ is_array($change['after']) || is_object($change['after']) ? json_encode($change['after']) : $change['after'] }}</span>
-                                </div>
-                            </li>
-                            @endforeach
-                        </ul>
-                        @endif
-                        @break
-                        {{-- log location deleted --}}
-                        @case('location_deleted')
-                        @foreach($log->properties as $key => $value)
-                        <div>
-                            <strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong>
-                            @if(is_array($value) || is_object($value))
-                            {{ json_encode($value) }}
-                            @else
-                            {{ $value }}
-                            @endif
-                        </div>
-                        @endforeach
-                        @break
-                        {{-- asset damaged --}}
-                        @case('asset_damaged')
-                        @foreach ($log->properties as $key => $value)
-                        <div>
-                            <strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong>
-                            @if(is_array($value) || is_object($value))
-                            {{ json_encode($value) }}
-                            @else
-                            {{ $value }}
-                            @endif
-                        </div>
-                        @endforeach
-                        @break
-                        {{-- asset damaged --}}
-                        @case('asset_repaired')
-                        @foreach ($log->properties as $key => $value)
-                        <div>
-                            <strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong>
-                            @if(is_array($value) || is_object($value))
-                            {{ json_encode($value) }}
-                            @else
-                            {{ $value }}
-                            @endif
-                        </div>
-                        @endforeach
-                        @break
-                        {{-- asset damaged --}}
-                        @case('asset_repair_completed')
-                        @foreach ($log->properties as $key => $value)
-                        <div>
-                            <strong>{{ ucfirst(str_replace('_', ' ', $key)) }}:</strong>
-                            @if(is_array($value) || is_object($value))
-                            {{ json_encode($value) }}
-                            @else
-                            {{ $value }}
-                            @endif
-                        </div>
-                        @endforeach
-                        @break
-                        @default
-                        <span class="italic text-gray-400">No Details</span>
-                        @endswitch
-                    </td>
-                    <td>{{ $log->created_at->format('d M Y H:i') }}</td>
-                </tr>
+                @foreach ($logs as $log)
+                    <tr>
+                        <td>
+                            {{ $log->causer?->name ?? 'System' }}
+                        </td>
+                        <td>{{ $log->log_name }}</td>
+                        <td>{{ $log->description }}</td>
+                        <td>
+                            @switch($log->event)
+                                @case('asset_repair_updated')
+                                    @include('livewire.audit.logs.asset-repair')
+                                @break
+
+                                @case('asset_detail_updated')
+                                    @include('livewire.audit.logs.asset-detail')
+                                @break
+
+                                @case('asset_updated')
+                                @case('category_updated')
+
+                                @case('component_updated')
+                                @case('location_updated')
+                                    @include('livewire.audit.logs.changes')
+                                @break
+
+                                @case('asset_created')
+                                @case('asset_deleted')
+
+                                @case('category_created')
+                                @case('category_deleted')
+
+                                @case('component_created')
+                                @case('component_deleted')
+
+                                @case('location_created')
+                                @case('location_deleted')
+
+                                @case('asset_damaged')
+                                @case('asset_repaired')
+
+                                @case('asset_repair_completed')
+                                @case('location_moved')
+                                    @include('livewire.audit.logs.simple')
+                                @break
+
+                                @default
+                                    <span class="italic text-gray-400">No Details</span>
+                            @endswitch
+                        </td>
+                        <td>{{ $log->created_at->format('d M Y H:i') }}</td>
+                    </tr>
                 @endforeach
             </tbody>
         </table>
