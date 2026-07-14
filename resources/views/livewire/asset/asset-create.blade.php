@@ -157,6 +157,53 @@
                 </div>
             </div>
             {{-- End Components --}}
+            <label class="tab">
+                <input type="radio" name="my_tabs_4" />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="size-4 me-2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Detail
+            </label>
+            <div class="tab-content bg-base-100 border-base-300 p-6">
+                {{-- Isi Tab Detail --}}
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-semibold">Detail Asset</h3>
+                    </div>
+
+                    <div class="space-y-2">
+                        @foreach ($detailItems as $index => $item)
+                            <div wire:key="detail-item-{{ $index }}" class="flex gap-2 items-start">
+                                <div class="flex-1">
+                                    <input type="text" wire:model="detailItems.{{ $index }}.name"
+                                        class="input input-bordered input-sm w-full" placeholder="Nama (mis: Warna)">
+                                    @error("detailItems.$index.name")
+                                        <span class="text-error text-xs">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="flex-1">
+                                    <input type="text" wire:model="detailItems.{{ $index }}.value"
+                                        class="input input-bordered input-sm w-full" placeholder="Nilai (mis: Hitam)">
+                                    @error("detailItems.$index.value")
+                                        <span class="text-error text-xs">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <button type="button" wire:click="removeDetailItem({{ $index }})"
+                                    class="btn btn-sm btn-ghost text-error" title="Hapus baris">
+                                    ✕
+                                </button>
+                            </div>
+                        @endforeach
+                        <button type="button" wire:click="addDetailItem" class="btn btn-sm btn-outline">
+                            + Tambah Detail
+                        </button>
+                    </div>
+                </div>
+            </div>
             {{-- Location --}}
             <label class="tab">
                 <input type="radio" name="my_tabs_4" />
@@ -190,12 +237,8 @@
             </div>
         </div>
         <div class="m-3">
-            <button type="submit" class="btn btn-primary" wire:click="store" wire:loading.attr="disabled"
-                wire:target="store">
-                <span wire:loading.remove wire:target="store">
-                    Save
-                </span>
-
+            <button type="submit" class="btn btn-primary" wire:loading.attr="disabled" wire:target="store">
+                <span wire:loading.remove wire:target="store">Save</span>
                 <span wire:loading wire:target="store">
                     <span class="loading loading-spinner loading-sm"></span>
                     Saving...

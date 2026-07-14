@@ -31,6 +31,9 @@ class AssetCreate extends Component
     public $search = '';
     public $results;
 
+    // Detail tambahan (tab Detail): array of ['name' => '', 'value' => '']
+    public array $detailItems = [];
+
     // status buka/tutup dropdown, di-entangle dengan Alpine di blade
     public bool $isOpen = false;
 
@@ -44,6 +47,9 @@ class AssetCreate extends Component
         $this->generateAssetCodeAndPurchaseDate();
 
         $this->results = collect();
+        $this->detailItems = [
+            ['name' => '', 'value' => ''],
+        ];
     }
 
     /**
@@ -54,6 +60,22 @@ class AssetCreate extends Component
     {
         $this->isOpen = true;
         $this->loadResults($this->search);
+    }
+
+    public function addDetailItem()
+    {
+        $this->detailItems[] = ['name' => '', 'value' => ''];
+    }
+
+    public function removeDetailItem($index)
+    {
+        unset($this->detailItems[$index]);
+        $this->detailItems = array_values($this->detailItems);
+
+        // Jangan sampai kosong total, minimal 1 baris tersedia untuk diisi
+        if (empty($this->detailItems)) {
+            $this->detailItems = [['name' => '', 'value' => '']];
+        }
     }
 
     public function updatedSearch()
@@ -176,6 +198,17 @@ class AssetCreate extends Component
             'details' => $this->details,
             'moved_at' => $this->moved_at,
         ]);
+
+        foreach ($this->detailItems as $item) {
+            if (trim($item['name'] ?? '') === '' && trim($item['value'] ?? '') === '') {
+                continue;
+            }
+
+            $asset->details()->create([
+                'name' => $item['name'],
+                'value' => $item['value'],
+            ]);
+        }
 
         AuditService::log(
             AuditEvent::ASSET_CREATED,

@@ -23,7 +23,6 @@ class AuditEvent
     const LOCATION_CREATED = 'location_created';
     const LOCATION_UPDATED = 'location_updated';
     const LOCATION_DELETED = 'location_deleted';
-
     const LOCATION_MOVED = 'location_moved';
 
     const COMPONENT_CREATED = 'component_created';
@@ -34,4 +33,7 @@ class AuditEvent
     const ASSET_REPAIRED = 'asset_repaired';
     const ASSET_REPAIR_COMPLETED = 'asset_repair_completed';
     const ASSET_REPAIR_UPDATED = 'asset_repair_updated';
+
+    const ASSET_DETAIL_ADDED = 'asset_detail_added';
+    const ASSET_DETAIL_UPDATED = 'asset_detail_updated';
 }

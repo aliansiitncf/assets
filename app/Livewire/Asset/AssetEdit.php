@@ -26,8 +26,18 @@ class AssetEdit extends Component
     public $name_component, $components = [];
 
     public $locationForm;
+
     // Locations
     public $locations, $location_id, $details, $moved_at;
+
+    // Detail tambahan (tab Detail): array of ['name' => '', 'value' => '']
+    public array $detailItems = [];
+
+    // status buka/tutup dropdown, di-entangle dengan Alpine di blade
+    public bool $isOpen = false;
+
+    // jumlah maksimal opsi yang ditampilkan sekali render
+    protected int $componentLimit = 10;
 
     public $search = '';
     public $results;
@@ -47,19 +57,43 @@ class AssetEdit extends Component
             ->toArray();
 
         $this->results = collect();
+        $this->detailItems = $asset->details
+            ->map(fn($detail) => ['name' => $detail->name, 'value' => $detail->value])
+            ->toArray();
     }
+    /**
+     * Dipanggil saat input diklik (belum tentu ada ketikan).
+     * Menampilkan daftar default (belum difilter) begitu dropdown dibuka.
+     */
+    public function openDropdown()
+    {
+        $this->isOpen = true;
+        $this->loadResults($this->search);
+    }
+
+    public function addDetailItem()
+    {
+        $this->detailItems[] = ['name' => '', 'value' => ''];
+    }
+
+    public function removeDetailItem($index)
+    {
+        unset($this->detailItems[$index]);
+        $this->detailItems = array_values($this->detailItems);
+
+        // Jangan sampai kosong total, minimal 1 baris tersedia untuk diisi
+        if (empty($this->detailItems)) {
+            $this->detailItems = [['name' => '', 'value' => '']];
+        }
+    }
+
     public function updatedSearch()
     {
-        if (!$this->search) {
-            $this->results = collect();
-            return;
-        }
-
-        $this->results = ComponentModel::select('id_component', 'name_component')
-            ->where('name_component', 'like', '%' . $this->search . '%')
-            ->limit(10)
-            ->get();
+        // Dropdown sudah terbuka lewat klik, di sini tinggal memfilter isinya.
+        $this->isOpen = true;
+        $this->loadResults($this->search);
     }
+
     public function selectComponent($id)
     {
         if (!in_array($id, $this->components)) {
@@ -68,11 +102,14 @@ class AssetEdit extends Component
 
         $this->search = '';
         $this->results = [];
+        $this->isOpen = false;
     }
+
     public function removeComponent($id)
     {
         $this->components = array_filter($this->components, fn($item) => $item !== $id);
     }
+
     public function addLocation()
     {
         $this->locationForm = true;
@@ -86,6 +123,7 @@ class AssetEdit extends Component
             'purchase_date' => 'required',
             'image' => 'nullable|image|max:2048',
         ]);
+
         $before = $this->asset->only([
             'asset_code',
             'name'
@@ -99,6 +137,7 @@ class AssetEdit extends Component
                 oldPath: $this->asset->image_path
             );
         }
+
         $this->asset->update([
             'asset_code' => $this->asset_code,
             'name' => $this->name,
@@ -107,10 +146,12 @@ class AssetEdit extends Component
             'status' => $this->status,
             'image_path' => $imagePath,
         ]);
+
         $this->asset->components()->sync($this->components);
         $changes = $this->asset->getChanges();
         $allowedChanges = ['name'];
         $filteredChanges = array_intersect_key($changes, array_flip($allowedChanges));
+
         if (!empty($filteredChanges)) {
             $auditData = [];
             foreach ($filteredChanges as $key => $value) {
@@ -134,12 +175,14 @@ class AssetEdit extends Component
                 'details' => 'required',
                 'moved_at' => 'required|date',
             ]);
+
             $oldLocation = $this->asset->latestLocation?->location?->name;
             $history = $this->asset->assets_histories()->create([
                 'location_id' => $this->location_id,
                 'details' => $this->details,
                 'moved_at' => $this->moved_at,
             ]);
+
             // Log Location Moved
             AuditService::log(
                 AuditEvent::LOCATION_MOVED,
@@ -153,6 +196,41 @@ class AssetEdit extends Component
                 ]
             );
         }
+
+        // 1. Simpan kondisi detail tambahan sebelum diubah, untuk dibandingkan setelahnya
+        $oldDetails = $this->asset->details()->pluck('value', 'name')->toArray();
+
+        // 2. Hapus detail lama
+        $this->asset->details()->delete(); // Hapus semua detail lama
+
+        // 3. Simpan detail baru dari $this->detailItems
+        foreach ($this->detailItems as $item) {
+            if (trim($item['name'] ?? '') === '' && trim($item['value'] ?? '') === '') {
+                continue;
+            }
+            $this->asset->details()->create($item);
+        }
+
+        $newDetails = collect($this->detailItems)
+            ->filter(fn($item) => trim($item['name'] ?? '') !== '' || trim($item['value'] ?? '') !== '')
+            ->pluck('value', 'name')
+            ->toArray();
+
+
+        if ($oldDetails !== $newDetails) {
+            // Log Detail Tambahan Updated
+            AuditService::log(
+                AuditEvent::ASSET_DETAIL_UPDATED,
+                'asset_detail_updated',
+                $this->asset,
+                [
+                    'before' => $oldDetails,
+                    'after' => $newDetails,
+                ]
+            );
+        }
+
+
 
         // Redirect to assets list with success message
         return redirect()->route('assets')->with('message', 'Asset updated successfully.');

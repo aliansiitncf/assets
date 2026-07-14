@@ -113,4 +113,9 @@ class Asset extends Model
                 $query->whereBetween('purchase_date', [$startDate, $endDate]);
             });
     }
+
+    public function details()
+    {
+        return $this->hasMany(Detail::class, 'asset_id', 'id_asset');
+    }
 }

@@ -29,13 +29,13 @@
     </div>
     {{-- control error message --}}
     @if ($errors->any())
-    <div role="alert" class="alert alert-error alert-soft mt-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
-            viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>{{ $errors->first() }}
-    </div>
+        <div role="alert" class="alert alert-error alert-soft mt-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>{{ $errors->first() }}
+        </div>
     @endif
     {{-- Tab Menu --}}
     <form wire:submit.prevent="update" method="post">
@@ -57,7 +57,7 @@
                         <select class="select select-accent w-full" wire:model="category_id">
                             <option value="">Select Category</option>
                             @foreach ($categories as $category)
-                            <option value="{{ $category->id_category }}">{{ $category->name }}</option>
+                                <option value="{{ $category->id_category }}">{{ $category->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -79,19 +79,21 @@
                             <input type="file" class="file-input" wire:model.live="image" />
                             <label class="label">Max size 2MB</label>
                             {{-- error --}}
-                            @error('image') <span class="text-sm text-red-500">{{ $message }}</span> @enderror
+                            @error('image')
+                                <span class="text-sm text-red-500">{{ $message }}</span>
+                            @enderror
                             {{-- Spinner saat loading --}}
                             <span wire:loading wire:target="image"
                                 class="loading loading-spinner loading-md ml-2 mt-2"></span>
                         </div>
                         {{-- preview image --}}
                         @if ($image)
-                        <div class="mt-2">
-                            <img src="{{ $image->temporaryUrl() }}" alt="Image Preview"
-                                class="w-32 h-32 object-cover rounded">
-                        </div>
-                        <button type="button" class="btn btn-sm mt-2 btn-error"
-                            wire:click="resetFieldImage">Remove</button>
+                            <div class="mt-2">
+                                <img src="{{ $image->temporaryUrl() }}" alt="Image Preview"
+                                    class="w-32 h-32 object-cover rounded">
+                            </div>
+                            <button type="button" class="btn btn-sm mt-2 btn-error"
+                                wire:click="resetFieldImage">Remove</button>
                         @endif
                     </div>
                 </fieldset>
@@ -111,41 +113,89 @@
                 <input type="text" wire:model.live.debounce.300ms="search" class="input input-bordered w-full"
                     placeholder="Cari component...">
 
-                @if($results && $results->isNotEmpty())
-                <div class="menu bg-base-200 rounded-box w-75 z-50">
-                    @foreach($results as $item)
-                    <div wire:click="selectComponent({{ $item->id_component }})"
-                        class="p-2 hover:bg-gray-100 cursor-pointer">
-                        {{ $item->name_component }}
+                @if ($results && $results->isNotEmpty())
+                    <div class="menu bg-base-200 rounded-box w-75 z-50">
+                        @foreach ($results as $item)
+                            <div wire:click="selectComponent({{ $item->id_component }})"
+                                class="p-2 hover:bg-gray-100 cursor-pointer">
+                                {{ $item->name_component }}
+                            </div>
+                        @endforeach
                     </div>
-                    @endforeach
-                </div>
                 @endif
                 {{-- SELECTED --}}
                 <div class="flex flex-wrap gap-2 mt-2">
-                    @foreach($components as $id)
-                    @php
-                    $comp = \App\Models\Component::find($id);
-                    @endphp
+                    @foreach ($components as $id)
+                        @php
+                            $comp = \App\Models\Component::find($id);
+                        @endphp
 
-                    <span class="badge badge-primary flex items-center gap-1">
-                        {{ $comp->name_component ?? $id }}
+                        <span class="badge badge-primary flex items-center gap-1">
+                            {{ $comp->name_component ?? $id }}
 
-                        <button type="button" wire:click="removeComponent({{ $id }})" class="ml-1 text-xs">
-                            ✕
-                        </button>
-                    </span>
+                            <button type="button" wire:click="removeComponent({{ $id }})"
+                                class="ml-1 text-xs">
+                                ✕
+                            </button>
+                        </span>
                     @endforeach
                 </div>
             </div>
+            {{-- Detail --}}
+            <label class="tab">
+                <input type="radio" name="my_tabs_4" />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="size-4 me-2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6-2.292m0-14.25v14.25" />
+                </svg>
+                Detail
+            </label>
+            <div class="tab-content bg-base-100 border-base-300 p-6">
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-semibold">Detail Asset</h3>
+                    </div>
+
+                    <div class="space-y-2">
+                        @foreach ($detailItems as $index => $item)
+                            <div wire:key="detail-item-{{ $index }}" class="flex gap-2 items-start">
+                                <div class="flex-1">
+                                    <input type="text" wire:model="detailItems.{{ $index }}.name"
+                                        class="input input-bordered input-sm w-full" placeholder="Nama (mis: Warna)">
+                                    @error("detailItems.$index.name")
+                                        <span class="text-error text-xs">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="flex-1">
+                                    <input type="text" wire:model="detailItems.{{ $index }}.value"
+                                        class="input input-bordered input-sm w-full" placeholder="Nilai (mis: Hitam)">
+                                    @error("detailItems.$index.value")
+                                        <span class="text-error text-xs">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <button type="button" wire:click="removeDetailItem({{ $index }})"
+                                    class="btn btn-sm btn-ghost text-error" title="Hapus baris">
+                                    ✕
+                                </button>
+                            </div>
+                        @endforeach
+                        <button type="button" wire:click="addDetailItem" class="btn btn-sm btn-outline">
+                            + Tambah Detail
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             {{-- End Components --}}
             {{-- Location --}}
             <label class="tab">
                 <input type="radio" name="my_tabs_4" />
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="size-4 me-2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                 </svg>
@@ -160,32 +210,32 @@
                     </div>
                 </div>
                 @if ($locationForm)
-                <div>
-                    <legend class="fieldset-legend">Location</legend>
-                    <select wire:model="location_id" class="select select-accent w-full">
-                        <option value="">Select Location</option>
-                        @foreach ($locations as $location)
-                        <option value="{{ $location->id_location }}">{{ $location->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <legend class="fieldset-legend">Detail Location</legend>
-                    <input type="text" class="input input-accent w-full" wire:model="details"
-                        placeholder="Detail Location" />
-                </div>
-                <div>
-                    <legend class="fieldset-legend">Date</legend>
-                    <input type="date" class="input input-accent w-full" wire:model="moved_at" />
-                </div>
+                    <div>
+                        <legend class="fieldset-legend">Location</legend>
+                        <select wire:model="location_id" class="select select-accent w-full">
+                            <option value="">Select Location</option>
+                            @foreach ($locations as $location)
+                                <option value="{{ $location->id_location }}">{{ $location->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <legend class="fieldset-legend">Detail Location</legend>
+                        <input type="text" class="input input-accent w-full" wire:model="details"
+                            placeholder="Detail Location" />
+                    </div>
+                    <div>
+                        <legend class="fieldset-legend">Date</legend>
+                        <input type="date" class="input input-accent w-full" wire:model="moved_at" />
+                    </div>
                 @endif
             </div>
             {{-- End Location --}}
         </div>
         <div class="m-3">
             <button type="submit" class="btn btn-primary">
-            <span wire:loading.remove>Save</span>
-            <span wire:loading wire:target="update" class="loading loading-spinner loading-md"></span>
+                <span wire:loading.remove>Save</span>
+                <span wire:loading wire:target="update" class="loading loading-spinner loading-md"></span>
             </button>
             <a href="{{ route('assets') }}" type="button" class="btn btn-error">cancel</a>
         </div>
