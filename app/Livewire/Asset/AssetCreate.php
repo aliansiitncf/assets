@@ -31,6 +31,12 @@ class AssetCreate extends Component
     public $search = '';
     public $results;
 
+    // status buka/tutup dropdown, di-entangle dengan Alpine di blade
+    public bool $isOpen = false;
+
+    // jumlah maksimal opsi yang ditampilkan sekali render
+    protected int $componentLimit = 10;
+
     public function mount()
     {
         $this->categories = Category::select('id_category', 'name')->get();
@@ -40,16 +46,36 @@ class AssetCreate extends Component
         $this->results = collect();
     }
 
+    /**
+     * Dipanggil saat input diklik (belum tentu ada ketikan).
+     * Menampilkan daftar default (belum difilter) begitu dropdown dibuka.
+     */
+    public function openDropdown()
+    {
+        $this->isOpen = true;
+        $this->loadResults($this->search);
+    }
+
     public function updatedSearch()
     {
-        if (!$this->search) {
-            $this->results = collect();
-            return;
-        }
+        // Dropdown sudah terbuka lewat klik, di sini tinggal memfilter isinya.
+        $this->isOpen = true;
+        $this->loadResults($this->search);
+    }
+
+    /**
+     * Query bersama untuk daftar default (keyword kosong)
+     * maupun hasil pencarian (keyword terisi).
+     */
+    protected function loadResults(string $keyword = '')
+    {
+        $keyword = trim($keyword);
 
         $this->results = ComponentModel::select('id_component', 'name_component')
-            ->where('name_component', 'like', '%' . $this->search . '%')
-            ->limit(10)
+            ->when($keyword !== '', fn($q) => $q->where('name_component', 'like', '%' . $keyword . '%'))
+            ->when(!empty($this->components), fn($q) => $q->whereNotIn('id_component', $this->components))
+            ->orderBy('name_component')
+            ->limit($this->componentLimit)
             ->get();
     }
 
@@ -61,11 +87,32 @@ class AssetCreate extends Component
 
         $this->search = '';
         $this->results = collect();
+        $this->isOpen = false;
     }
 
     public function removeComponent($id)
     {
-        $this->components = array_filter($this->components, fn($item) => $item !== $id);
+        $this->components = array_values(array_filter($this->components, fn($item) => $item !== $id));
+    }
+
+    /**
+     * Ambil detail komponen yang sudah dipilih dalam satu query,
+     * dipakai di blade untuk menampilkan badge (menghindari N+1).
+     */
+    public function getSelectedComponentsProperty()
+    {
+        if (empty($this->components)) {
+            return collect();
+        }
+
+        return ComponentModel::select('id_component', 'name_component')
+            ->whereIn('id_component', $this->components)
+            ->get();
+    }
+
+    public function closeDropdown()
+    {
+        $this->isOpen = false;
     }
 
     public function generateAssetCodeAndPurchaseDate()

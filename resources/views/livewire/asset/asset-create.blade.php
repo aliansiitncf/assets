@@ -28,18 +28,20 @@
         <div class="badge badge-primary">
             <h3 class="font-bold text-lg">Add New Asset</h3>
         </div>
-        <button class="btn btn-primary btn-sm" wire:click="$dispatch('openComponentModal')">
-            Add Component
+        <button class="btn btn-primary btn-md" wire:click="$dispatch('openComponentModal')">
+            <x-heroicon-o-plus-circle class="h-5 w-5" />
+            Komponen Baru
         </button>
     </div>
     {{-- control error message --}}
     @if ($errors->any())
-    <div role="alert" class="alert alert-error alert-soft mt-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>{{ $errors->first() }}
-    </div>
+        <div role="alert" class="alert alert-error alert-soft mt-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>{{ $errors->first() }}
+        </div>
     @endif
     {{-- Tab Menu --}}
     <form wire:submit.prevent="store" class="mt-3" method="POST">
@@ -61,7 +63,7 @@
                         <select class="select select-accent w-full" wire:model="category_id">
                             <option value="">Select Category</option>
                             @foreach ($categories as $category)
-                            <option value="{{ $category->id_category }}">{{ $category->name }}</option>
+                                <option value="{{ $category->id_category }}">{{ $category->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -88,12 +90,12 @@
                         </div>
                         {{-- preview image --}}
                         @if ($image)
-                        <div class="mt-2">
-                            <img src="{{ $image->temporaryUrl() }}" alt="Image Preview"
-                                class="w-32 h-32 object-cover rounded">
-                        </div>
-                        <button type="button" class="btn btn-sm mt-2 btn-error"
-                            wire:click="resetFieldImage">Remove</button>
+                            <div class="mt-2">
+                                <img src="{{ $image->temporaryUrl() }}" alt="Image Preview"
+                                    class="w-32 h-32 object-cover rounded">
+                            </div>
+                            <button type="button" class="btn btn-sm mt-2 btn-error"
+                                wire:click="resetFieldImage">Remove</button>
                         @endif
                     </div>
                 </fieldset>
@@ -109,35 +111,48 @@
                 Components
             </label>
             <div class="tab-content bg-base-100 border-base-300 p-6">
-                <div>
-                    <input type="text" wire:model.live.debounce.300ms="search" class="input input-bordered w-full"
-                        placeholder="Cari component...">
-    
-                    @if($results && $results->isNotEmpty())
-                    <div class="menu bg-base-200 rounded-box w-75 z-50">
-                        @foreach($results as $item)
-                        <div wire:click="selectComponent({{ $item->id_component }})"
-                            class="p-2 hover:bg-gray-100 cursor-pointer">
-                            {{ $item->name_component }}
-                        </div>
+                <div x-data="{ open: @entangle('isOpen') }" x-on:click.outside="open = false; $wire.closeDropdown()" class="relative">
+                    {{-- Kotak select2-like: chip terpilih + input search jadi satu --}}
+                    <div x-on:click="$refs.searchInput.focus(); if (!open) $wire.openDropdown()"
+                        class="flex flex-wrap items-center gap-1 min-h-[42px] w-full pl-2 pr-8 py-1 border border-gray-300 rounded-md bg-white cursor-text transition-colors focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+                        @foreach ($this->selectedComponents as $comp)
+                            <span wire:key="selected-{{ $comp->id_component }}"
+                                class="flex items-center gap-1 bg-gray-100 border border-gray-300 text-gray-700 text-sm rounded px-2 py-0.5">
+                                {{ $comp->name_component }}
+                                <button type="button" wire:click.stop="removeComponent({{ $comp->id_component }})"
+                                    class="text-gray-400 hover:text-gray-700 leading-none text-xs">
+                                    &times;
+                                </button>
+                            </span>
                         @endforeach
+
+                        <input type="text" x-ref="searchInput" wire:model.live.debounce.300ms="search"
+                            x-on:click.stop="if (!open) $wire.openDropdown()"
+                            placeholder="{{ $this->selectedComponents->isEmpty() ? 'Cari component...' : '' }}"
+                            class="flex-1 min-w-[100px] border-none outline-none focus:ring-0 text-sm py-0.5 bg-transparent"
+                            autocomplete="off">
+
+                        {{-- Panah kecil ala select --}}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                            class="w-4 h-4 text-gray-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <path fill-rule="evenodd"
+                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                clip-rule="evenodd" />
+                        </svg>
                     </div>
-                    @endif
-                    {{-- SELECTED --}}
-                    <div class="flex flex-wrap gap-2 mt-2">
-                        @foreach($components as $id)
-                        @php
-                        $comp = \App\Models\Component::find($id);
-                        @endphp
-    
-                        <span class="badge badge-primary flex items-center gap-1">
-                            {{ $comp->name_component ?? $id }}
-    
-                            <button type="button" wire:click="removeComponent({{ $id }})" class="ml-1 text-xs">
-                                ✕
-                            </button>
-                        </span>
-                        @endforeach
+
+                    {{-- Dropdown --}}
+                    <div x-show="open" x-cloak x-transition
+                        class="absolute w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-64 overflow-y-auto">
+                        @forelse($results as $item)
+                            <div wire:click="selectComponent({{ $item->id_component }})"
+                                wire:key="component-option-{{ $item->id_component }}"
+                                class="px-3 py-2 text-sm cursor-pointer hover:bg-blue-500 hover:text-white">
+                                {{ $item->name_component }}
+                            </div>
+                        @empty
+                            <div class="px-3 py-2 text-sm text-gray-400">Tidak ada hasil</div>
+                        @endforelse
                     </div>
                 </div>
             </div>
@@ -159,7 +174,7 @@
                     <select wire:model="location_id" class="select select-accent w-full">
                         <option value="">Select Location</option>
                         @foreach ($locations as $location)
-                        <option value="{{ $location->id_location }}">{{ $location->name }}</option>
+                            <option value="{{ $location->id_location }}">{{ $location->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -175,9 +190,16 @@
             </div>
         </div>
         <div class="m-3">
-            <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
-                <span wire:loading.remove>Save</span>
-                <span wire:loading wire:target="store" class="loading loading-spinner loading-md"></span>
+            <button type="submit" class="btn btn-primary" wire:click="store" wire:loading.attr="disabled"
+                wire:target="store">
+                <span wire:loading.remove wire:target="store">
+                    Save
+                </span>
+
+                <span wire:loading wire:target="store">
+                    <span class="loading loading-spinner loading-sm"></span>
+                    Saving...
+                </span>
             </button>
             <a href="{{ route('assets') }}" type="button" class="btn btn-error">cancel</a>
 
