@@ -201,7 +201,7 @@ class AssetPage extends Component
     {
         $this->validate([
             'damageNotes' => 'required|string',
-            'damageImage' => 'required|image|max:2048', // Maksimal 2MB
+            'damageImage' => 'nullable|image|max:2048', // Maksimal 2MB
         ]);
         $imagePath = null;
         if ($this->damageImage) {

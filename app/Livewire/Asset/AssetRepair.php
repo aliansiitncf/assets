@@ -143,8 +143,8 @@ class AssetRepair extends Component
                 'harga',
                 'toko'
             ]);
-
-            session()->flash('message', 'Data perbaikan berhasil disimpan.');
+            return redirect()->route('asset.repair')
+                ->with('success', 'Data perbaikan berhasil disimpan.');
         } catch (\Throwable $e) {
             report($e);
             $this->addError('repairNotes', 'Terjadi kesalahan saat menyimpan data perbaikan. Silakan coba lagi.');

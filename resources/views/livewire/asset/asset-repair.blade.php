@@ -34,7 +34,8 @@
                             {{-- HM/KM --}}
                             <div>
                                 <label for="hmkm" class="label">
-                                    <span class="label-text font-semibold">HM/KM</span>
+                                    <span class="label-text font-semibold">HM/KM <span
+                                            class="text-error">*</span></span>
                                 </label>
                                 <input type="text" id="hmkm" wire:model.live="hmkm" placeholder="Masukkan HM/KM"
                                     class="input input-bordered input-sm w-full @error('hmkm') input-error @enderror">
@@ -47,7 +48,8 @@
                             {{-- Poin Service --}}
                             <div>
                                 <label for="poin" class="label">
-                                    <span class="label-text font-semibold">Poin Service</span>
+                                    <span class="label-text font-semibold">Poin Service <span
+                                            class="text-error">*</span></span>
                                 </label>
                                 <input type="text" id="poin" wire:model.live="poin"
                                     class="input input-bordered input-sm w-full @error('poin') input-error @enderror">
@@ -60,7 +62,8 @@
                             {{-- Out of Service --}}
                             <div>
                                 <label for="out_of_service" class="label">
-                                    <span class="label-text font-semibold">Out of Service</span>
+                                    <span class="label-text font-semibold">Out of Service <span
+                                            class="text-error">*</span></span>
                                 </label>
                                 <input type="date" id="out_of_service" wire:model.live="out_of_service"
                                     class="input input-bordered input-sm w-full @error('out_of_service') input-error @enderror">
@@ -73,7 +76,8 @@
                             {{-- In of Service --}}
                             <div>
                                 <label for="in_of_service" class="label">
-                                    <span class="label-text font-semibold">In of Service</span>
+                                    <span class="label-text font-semibold">In of Service <span
+                                            class="text-error">*</span></span>
                                 </label>
                                 <input type="date" id="in_of_service" wire:model.live="in_of_service"
                                     class="input input-bordered input-sm w-full @error('in_of_service') input-error @enderror">
@@ -88,7 +92,8 @@
                         {{-- Catatan --}}
                         <div class="mt-5">
                             <label for="repairNotes" class="label">
-                                <span class="label-text font-semibold">Catatan Perbaikan</span>
+                                <span class="label-text font-semibold">Catatan Perbaikan <span
+                                        class="text-error">*</span></span>
                             </label>
 
                             <textarea id="repairNotes" rows="4" wire:model.live="repairNotes"
@@ -166,7 +171,7 @@
                         @if ($components)
                             {{-- Form tambah komponen --}}
                             <div class="bg-base-200/50 rounded-lg p-4 mb-5">
-                                <p class="font-semibold text-sm mb-3">Tambah Komponen</p>
+                                <p class="font-semibold text-sm mb-3">Tambah Komponen </p>
                                 <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
                                     <div class="md:col-span-1">
                                         <label class="label py-1"><span class="label-text">Komponen</span></label>
