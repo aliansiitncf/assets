@@ -24,8 +24,14 @@
             </li>
         </ul>
     </div>
-    <div class="badge badge-primary">
-        <h3 class="font-bold text-lg">Edit Asset</h3>
+    <div class="flex justify-between">
+        <div class="badge badge-primary">
+            <h3 class="font-bold text-lg">Edit Asset</h3>
+        </div>
+        <button class="btn btn-primary btn-md" wire:click="$dispatch('openComponentModal')">
+            <x-heroicon-o-plus-circle class="h-5 w-5" />
+            Komponen Baru
+        </button>
     </div>
     {{-- control error message --}}
     @if ($errors->any())
@@ -254,4 +260,5 @@
             <a href="{{ route('assets') }}" type="button" class="btn btn-error">cancel</a>
         </div>
     </form>
+    @livewire('components.ModalComponent')
 </div>
