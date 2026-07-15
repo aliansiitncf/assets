@@ -1,44 +1,46 @@
 @php
-    $before = $log->properties['before'] ?? [];
-    $after = $log->properties['after'] ?? [];
-
-    $keys = collect(array_keys($before))->merge(array_keys($after))->unique();
+    $changes = $log->properties['changes'] ?? [];
 @endphp
 
 <div class="space-y-2">
 
-    @foreach ($keys as $key)
-        @continue(($before[$key] ?? null) == ($after[$key] ?? null))
+    @foreach ($changes as $change)
+        @php
+            $before = $change['before'] ?? [];
+            $after = $change['after'] ?? [];
+
+            $keys = collect(array_keys($before))->merge(array_keys($after))->unique();
+        @endphp
 
         <div class="border rounded-lg p-3">
 
             <div class="font-semibold mb-2">
-                {{ $key }}
+                {{ $before['name'] ?? ($after['name'] ?? 'Detail') }}
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
+            @foreach ($keys as $key)
+                @continue(($before[$key] ?? null) == ($after[$key] ?? null))
 
-                <div>
+                <div class="grid grid-cols-2 gap-3 mb-2">
 
-                    <div class="text-error text-sm">
-                        Before
+                    <div>
+                        <div class="text-error text-sm">
+                            Before {{ ucfirst($key) }}
+                        </div>
+
+                        {{ $before[$key] ?? '-' }}
                     </div>
 
-                    {{ $before[$key] ?? '-' }}
+                    <div>
+                        <div class="text-success text-sm">
+                            After {{ ucfirst($key) }}
+                        </div>
 
-                </div>
-
-                <div>
-
-                    <div class="text-success text-sm">
-                        After
+                        {{ $after[$key] ?? '-' }}
                     </div>
 
-                    {{ $after[$key] ?? '-' }}
-
                 </div>
-
-            </div>
+            @endforeach
 
         </div>
     @endforeach

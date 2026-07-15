@@ -11,8 +11,16 @@ class Detail extends Model
     protected $table = 'details';
     protected $guarded = ['id'];
 
-    public function asset()
+    public function assets()
     {
-        return $this->belongsTo(Asset::class, 'asset_id');
+        return $this->belongsToMany(
+            Asset::class,
+            'assets_details',
+            'detail_id',
+            'asset_id',
+            'id',
+            'id_asset'
+        )->withPivot('value')
+            ->withTimestamps();
     }
 }

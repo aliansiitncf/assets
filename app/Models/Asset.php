@@ -116,6 +116,13 @@ class Asset extends Model
 
     public function details()
     {
-        return $this->hasMany(Detail::class, 'asset_id', 'id_asset');
+        return $this->belongsToMany(
+            Detail::class,
+            'assets_details',
+            'asset_id',
+            'detail_id',
+            'id_asset',
+            'id'
+        )->withPivot('value')->withTimestamps();
     }
 }

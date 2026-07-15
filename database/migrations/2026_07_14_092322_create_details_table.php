@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('details', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('asset_id');
             $table->string('name');
-            $table->string('value');
-            $table->foreign('asset_id')->references('id_asset')->on('assets')->onDelete('cascade');
+            $table->unsignedBigInteger('category_id');
+            $table->foreign('category_id')->references('id_category')->on('categories')->onDelete('cascade');
+            $table->unique(['category_id', 'name']);
             $table->timestamps();
         });
     }

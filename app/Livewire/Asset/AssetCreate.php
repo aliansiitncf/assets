@@ -6,6 +6,7 @@ use App\Enums\AuditEvent;
 use App\Models\Asset;
 use App\Models\Category;
 use App\Models\Component as ComponentModel;
+use App\Models\Detail;
 use App\Models\Location;
 use App\Services\AuditService;
 use App\Services\ImageService;
@@ -47,9 +48,7 @@ class AssetCreate extends Component
         $this->generateAssetCodeAndPurchaseDate();
 
         $this->results = collect();
-        $this->detailItems = [
-            ['name' => '', 'value' => ''],
-        ];
+        $this->detailItems = [];
     }
 
     /**
@@ -83,6 +82,33 @@ class AssetCreate extends Component
         // Dropdown sudah terbuka lewat klik, di sini tinggal memfilter isinya.
         $this->isOpen = true;
         $this->loadResults($this->search);
+    }
+
+    public function updatedCategoryId($value)
+    {
+        $details = Detail::where('category_id', $value)
+            ->orderBy('name')
+            ->get();
+
+        if ($details->isEmpty()) {
+            $this->detailItems = [
+                [
+                    'id' => null,
+                    'name' => '',
+                    'value' => '',
+                ]
+            ];
+
+            return;
+        }
+
+        $this->detailItems = $details->map(function ($detail) {
+            return [
+                'id' => $detail->id,
+                'name' => $detail->name,
+                'value' => '',
+            ];
+        })->toArray();
     }
 
     /**
@@ -200,13 +226,22 @@ class AssetCreate extends Component
         ]);
 
         foreach ($this->detailItems as $item) {
-            if (trim($item['name'] ?? '') === '' && trim($item['value'] ?? '') === '') {
+
+            if (blank($item['name']) || blank($item['value'])) {
                 continue;
             }
 
-            $asset->details()->create([
-                'name' => $item['name'],
-                'value' => $item['value'],
+            $name = strtolower(preg_replace('/\s+/', ' ', trim($item['name'])));
+
+            $detail = Detail::firstOrCreate([
+                'name' => $name,
+                'category_id' => $this->category_id
+            ]);
+
+            $asset->details()->syncWithoutDetaching([
+                $detail->id => [
+                    'value' => trim($item['value']),
+                ]
             ]);
         }
 

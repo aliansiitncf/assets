@@ -92,12 +92,12 @@
             <div x-show="activeTab === 'detail'" x-cloak>
                 @if ($asset->details->isNotEmpty())
                     <div class="overflow-x-auto">
-                        <table class="table table-sm border-collapse border border-gray-200 w-full">
+                        <table class="table table-xs border-collapse border border-gray-200 w-full">
                             <tbody>
                                 @foreach ($asset->details as $detail)
                                     <tr>
-                                        <td class="font-medium">{{ $detail->name }}</td>
-                                        <td>{{ $detail->value }}</td>
+                                        <td class="font-semibold uppercase">{{ $detail->name }} :</td>
+                                        <td>{{ $detail->pivot->value }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

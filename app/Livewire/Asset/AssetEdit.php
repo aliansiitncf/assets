@@ -2,16 +2,17 @@
 
 namespace App\Livewire\Asset;
 
-use App\Models\Asset;
-use Livewire\Component;
-use App\Models\Category;
-use App\Models\Location;
 use App\Enums\AuditEvent;
-use Livewire\WithFileUploads;
+use App\Models\Asset;
+use App\Models\Category;
+use App\Models\Component as ComponentModel;
+use App\Models\Detail;
+use App\Models\Location;
 use App\Services\AuditService;
 use App\Services\ImageService;
 use Livewire\Attributes\Title;
-use App\Models\Component as ComponentModel;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Title('Edit Asset')]
 class AssetEdit extends Component
@@ -58,7 +59,11 @@ class AssetEdit extends Component
 
         $this->results = collect();
         $this->detailItems = $asset->details
-            ->map(fn($detail) => ['name' => $detail->name, 'value' => $detail->value])
+            ->map(fn($detail) => [
+                'id' => $detail->id,
+                'name' => $detail->name,
+                'value' => $detail->pivot->value
+            ])
             ->toArray();
     }
     /**
@@ -198,34 +203,101 @@ class AssetEdit extends Component
         }
 
         // 1. Simpan kondisi detail tambahan sebelum diubah, untuk dibandingkan setelahnya
-        $oldDetails = $this->asset->details()->pluck('value', 'name')->toArray();
+        $oldDetails = $this->asset->details
+            ->mapWithKeys(fn($detail) => [
+                $detail->id => [
+                    'name' => $detail->name,
+                    'value' => $detail->pivot->value,
+                ]
+            ])
+            ->toArray();
 
-        // 2. Hapus detail lama
-        $this->asset->details()->delete(); // Hapus semua detail lama
+        // Siapkan data untuk sync
+        $syncData = [];
 
         // 3. Simpan detail baru dari $this->detailItems
         foreach ($this->detailItems as $item) {
-            if (trim($item['name'] ?? '') === '' && trim($item['value'] ?? '') === '') {
+
+            if (blank($item['name']) || blank($item['value'])) {
                 continue;
             }
-            $this->asset->details()->create($item);
+
+            $name = strtolower(preg_replace('/\s+/', ' ', trim($item['name'])));
+
+            if (!empty($item['id'])) {
+
+                $detail = Detail::find($item['id']);
+
+                if ($detail) {
+                    $detail->update([
+                        'name' => $name,
+                        'category_id' => $this->category_id,
+                    ]);
+                } else {
+                    $detail = Detail::create([
+                        'name' => $name,
+                        'category_id' => $this->category_id,
+                    ]);
+                }
+            } else {
+
+                $detail = Detail::firstOrCreate([
+                    'name' => $name,
+                    'category_id' => $this->category_id,
+                ]);
+            }
+
+            $syncData[$detail->id] = [
+                'value' => trim($item['value']),
+            ];
         }
 
-        $newDetails = collect($this->detailItems)
-            ->filter(fn($item) => trim($item['name'] ?? '') !== '' || trim($item['value'] ?? '') !== '')
-            ->pluck('value', 'name')
+        // Replace seluruh detail asset
+        $this->asset->details()->sync($syncData);
+
+
+        // Ambil detail terbaru untuk audit
+        $newDetails = $this->asset->fresh()->details
+            ->mapWithKeys(fn($detail) => [
+                $detail->id => [
+                    'name' => $detail->name,
+                    'value' => $detail->pivot->value,
+                ]
+            ])
             ->toArray();
 
 
-        if ($oldDetails !== $newDetails) {
-            // Log Detail Tambahan Updated
+        // Log Detail Tambahan Updated
+        $changes = [];
+
+        $ids = array_unique(array_merge(
+            array_keys($oldDetails),
+            array_keys($newDetails)
+        ));
+
+        foreach ($ids as $id) {
+
+            $before = $oldDetails[$id] ?? null;
+            $after = $newDetails[$id] ?? null;
+
+            if ($before != $after) {
+
+                $changes[] = [
+                    'detail_id' => $id,
+                    'before' => $before,
+                    'after' => $after,
+                ];
+            }
+        }
+
+        if (!empty($changes)) {
+
             AuditService::log(
                 AuditEvent::ASSET_DETAIL_UPDATED,
                 'asset_detail_updated',
                 $this->asset,
                 [
-                    'before' => $oldDetails,
-                    'after' => $newDetails,
+                    'changes' => $changes,
                 ]
             );
         }

@@ -60,7 +60,7 @@
                 <fieldset class="fieldset">
                     <div>
                         <legend class="fieldset-legend">Category</legend>
-                        <select class="select select-accent w-full" wire:model="category_id">
+                        <select class="select select-accent w-full" wire:model.live="category_id">
                             <option value="">Select Category</option>
                             @foreach ($categories as $category)
                                 <option value="{{ $category->id_category }}">{{ $category->name }}</option>
@@ -176,9 +176,15 @@
                     <div class="space-y-2">
                         @foreach ($detailItems as $index => $item)
                             <div wire:key="detail-item-{{ $index }}" class="flex gap-2 items-start">
+
+                                {{-- Simpan id detail --}}
+                                <input type="hidden" wire:model="detailItems.{{ $index }}.id">
+
                                 <div class="flex-1">
                                     <input type="text" wire:model="detailItems.{{ $index }}.name"
-                                        class="input input-bordered input-sm w-full" placeholder="Nama (mis: Warna)">
+                                        class="input input-bordered input-sm w-full" placeholder="Nama (mis: Warna)"
+                                        @if (!empty($item['id'])) readonly @endif>
+
                                     @error("detailItems.$index.name")
                                         <span class="text-error text-xs">{{ $message }}</span>
                                     @enderror
@@ -187,6 +193,7 @@
                                 <div class="flex-1">
                                     <input type="text" wire:model="detailItems.{{ $index }}.value"
                                         class="input input-bordered input-sm w-full" placeholder="Nilai (mis: Hitam)">
+
                                     @error("detailItems.$index.value")
                                         <span class="text-error text-xs">{{ $message }}</span>
                                     @enderror
@@ -196,8 +203,10 @@
                                     class="btn btn-sm btn-ghost text-error" title="Hapus baris">
                                     ✕
                                 </button>
+
                             </div>
                         @endforeach
+
                         <button type="button" wire:click="addDetailItem" class="btn btn-sm btn-outline">
                             + Tambah Detail
                         </button>
