@@ -19,26 +19,20 @@
             </div>
 
             @foreach ($keys as $key)
-                @continue(($before[$key] ?? null) == ($after[$key] ?? null))
+                @continue(($before[$key] ?? null) === ($after[$key] ?? null))
 
-                <div class="grid grid-cols-2 gap-3 mb-2">
+                <div class="flex items-center gap-2 text-sm">
+                    <span class="font-medium capitalize">{{ $key }}:</span>
 
-                    <div>
-                        <div class="text-error text-sm">
-                            Before {{ ucfirst($key) }}
-                        </div>
-
+                    <span class="text-error">
                         {{ $before[$key] ?? '-' }}
-                    </div>
+                    </span>
 
-                    <div>
-                        <div class="text-success text-sm">
-                            After {{ ucfirst($key) }}
-                        </div>
+                    <span>→</span>
 
+                    <span class="text-success">
                         {{ $after[$key] ?? '-' }}
-                    </div>
-
+                    </span>
                 </div>
             @endforeach
 
