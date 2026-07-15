@@ -72,6 +72,9 @@ class AssetRepair extends Component
             'repairComponents.*.merk' => 'nullable|string',
             'repairComponents.*.qty' => 'required|integer|min:1',
             'repairComponents.*.harga' => 'required|numeric|min:0',
+            'repairComponents.*.dateInstal' => 'nullable|date',
+            'repairComponents.*.technician' => 'nullable|string|min:1',
+            'repairComponents.*.store' => 'nullable|string',
         ], [
             'repairComponents.required' => 'Tambahkan minimal satu komponen perbaikan.',
             'repairComponents.min' => 'Tambahkan minimal satu komponen perbaikan.',
@@ -184,11 +187,12 @@ class AssetRepair extends Component
     {
         $this->validate([
             'selectedComponent' => 'required|exists:components,id_component',
-            'merk' => 'required|string|min:1',
+            'merk' => 'nullable|string|min:1',
             'qty' => 'required|integer|min:1',
             'harga' => 'required|numeric|min:0',
             'dateInstal' => 'nullable|date',
             'technician' => 'nullable|string|min:1',
+            'toko' => 'nullable|string|min:1'
         ]);
 
         $component = ComponentModel::find($this->selectedComponent);
