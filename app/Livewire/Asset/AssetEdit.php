@@ -99,6 +99,18 @@ class AssetEdit extends Component
         $this->loadResults($this->search);
     }
 
+    protected function loadResults(string $keyword = '')
+    {
+        $keyword = trim($keyword);
+
+        $this->results = ComponentModel::select('id_component', 'name_component')
+            ->when($keyword !== '', fn($q) => $q->where('name_component', 'like', '%' . $keyword . '%'))
+            ->when(!empty($this->components), fn($q) => $q->whereNotIn('id_component', $this->components))
+            ->orderBy('name_component')
+            ->limit($this->componentLimit)
+            ->get();
+    }
+
     public function selectComponent($id)
     {
         if (!in_array($id, $this->components)) {
@@ -106,7 +118,23 @@ class AssetEdit extends Component
         }
 
         $this->search = '';
-        $this->results = [];
+        $this->results = collect();
+        $this->isOpen = false;
+    }
+
+    public function getSelectedComponentsProperty()
+    {
+        if (empty($this->components)) {
+            return collect();
+        }
+
+        return ComponentModel::select('id_component', 'name_component')
+            ->whereIn('id_component', $this->components)
+            ->get();
+    }
+
+    public function closeDropdown()
+    {
         $this->isOpen = false;
     }
 
