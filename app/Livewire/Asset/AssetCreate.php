@@ -105,7 +105,7 @@ class AssetCreate extends Component
         $this->detailItems = $details->map(function ($detail) {
             return [
                 'id' => $detail->id,
-                'name' => $detail->name,
+                'name' => ucwords($detail->name),
                 'value' => '',
             ];
         })->toArray();
