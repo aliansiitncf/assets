@@ -74,11 +74,12 @@ class AssetRepair extends Component
             'repairComponents.*.harga' => 'required|numeric|min:0',
             'repairComponents.*.dateInstal' => 'nullable|date',
             'repairComponents.*.technician' => 'nullable|string|min:1',
-            'repairComponents.*.store' => 'nullable|string',
+            'repairComponents.*.toko' => 'nullable|string',
         ], [
             'repairComponents.required' => 'Tambahkan minimal satu komponen perbaikan.',
             'repairComponents.min' => 'Tambahkan minimal satu komponen perbaikan.',
         ]);
+
 
         try {
             DB::transaction(function () use ($imageService) {
@@ -207,6 +208,7 @@ class AssetRepair extends Component
                 'dateInstal' => $this->dateInstal,
                 'technician' => $this->technician,
                 'subtotal' => $this->qty * $this->harga,
+                'toko' => $this->toko
             ];
 
             // reset form
