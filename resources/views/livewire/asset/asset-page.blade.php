@@ -119,7 +119,7 @@
                     </svg>
                 </button>
             @endcan
-            <button wire:click="create" class="btn btn-primary">Add Asset</button>
+            <button type="button" wire:click="create" class="btn btn-primary">Add Asset</button>
         </div>
     </div>
 
@@ -299,7 +299,7 @@
                                     <ul tabindex="-1"
                                         class="dropdown-content menu bg-base-100 rounded-box z-10 w-44 p-2 shadow-lg border border-base-300 gap-1">
                                         <li>
-                                            <button wire:click="edit({{ $asset->id_asset }})"
+                                            <button type="button" wire:click="edit({{ $asset->id_asset }})"
                                                 class="flex items-center gap-2 text-warning">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none"
                                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -311,7 +311,7 @@
                                             </button>
                                         </li>
                                         <li>
-                                            <button wire:click="showDetail({{ $asset->id_asset }})"
+                                            <button type="button" wire:click="showDetail({{ $asset->id_asset }})"
                                                 class="flex items-center gap-2 text-info">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none"
                                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -325,7 +325,8 @@
                                         @switch($asset->condition)
                                             @case('Rusak')
                                                 <li>
-                                                    <button wire:click="repairAsset('{{ $asset->asset_code }}')"
+                                                    <button type="button"
+                                                        wire:click="repairAsset('{{ $asset->asset_code }}')"
                                                         class="flex items-center gap-2 text-secondary">
                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none"
                                                             viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -343,7 +344,8 @@
 
                                             @default
                                                 <li>
-                                                    <button wire:click="openDamageModal({{ $asset->id_asset }})"
+                                                    <button type="button"
+                                                        wire:click="openDamageModal({{ $asset->id_asset }})"
                                                         class="flex items-center gap-2 text-secondary">
                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none"
                                                             viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -357,7 +359,7 @@
                                         @endswitch
                                         <div class="divider my-0"></div>
                                         <li>
-                                            <button wire:click="delete({{ $asset->id_asset }})"
+                                            <button type="button" wire:click="delete({{ $asset->id_asset }})"
                                                 onclick="confirm('Are you sure?') || event.stopImmediatePropagation()"
                                                 class="flex items-center gap-2 text-error">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -386,7 +388,7 @@
                     </tbody>
                 </table>
                 <div class="mt-4 p-3">
-                    {{ $assets->links() }}
+                    {{ $assets->links('vendor.pagination.custom') }}
                 </div>
             </div>
         </div>
