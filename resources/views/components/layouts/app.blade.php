@@ -48,6 +48,29 @@
         </div>
         @include('components.layouts.sidebar')
     </div>
+    @if (session('success') || session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                });
+
+                Toast.fire({
+                    icon: "{{ session('success') ? 'success' : 'error' }}",
+                    title: "{{ session('success') ? 'Berhasil' : 'Error' }}",
+                    text: @json(session('success') ?? session('error'))
+                });
+            });
+        </script>
+    @endif
     @livewireScripts
 </body>
 
