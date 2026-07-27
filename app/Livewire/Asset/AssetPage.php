@@ -232,6 +232,8 @@ class AssetPage extends Component
             ]
         );
         $this->closeDamageModal();
+        return redirect()->route('assets')
+            ->with('success', 'Data Maintenance berhasil disimpan.');
     }
 
     public function resetImageDamage()
