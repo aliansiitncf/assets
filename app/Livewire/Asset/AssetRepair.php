@@ -117,9 +117,9 @@ class AssetRepair extends Component
                 }
 
 
-                // Update kondisi asset
+                // Update kondisi jika user mengisi completed_at langsung
                 Asset::where('id_asset', $this->repairAssetId)->update([
-                    'condition' => 'Perbaikan',
+                    'condition' => $repair->completed_at ? 'Baik' : 'Perbaikan',
                 ]);
 
                 // Catat audit log
@@ -147,7 +147,7 @@ class AssetRepair extends Component
                 'harga',
                 'toko'
             ]);
-            return redirect()->route('asset.repair')
+            return redirect()->route('assets')
                 ->with('success', 'Data perbaikan berhasil disimpan.');
         } catch (\Throwable $e) {
             report($e);
