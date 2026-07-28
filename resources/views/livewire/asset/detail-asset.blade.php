@@ -112,15 +112,28 @@
 
             {{-- Tab: Components --}}
             <div x-show="activeTab === 'components'" x-cloak>
-                <div class="flex flex-wrap gap-2">
-                    @forelse($asset->components as $comp)
-                        <span class="badge badge-neutral flex items-center gap-1">
-                            {{ $comp->name_component }}
-                        </span>
-                    @empty
-                        <span class="text-sm text-gray-400">Tidak ada component.</span>
-                    @endforelse
-                </div>
+                @if ($asset->components->isNotEmpty())
+                    <div class="overflow-x-auto">
+                        <table class="table table-zebra">
+                            <thead>
+                                <tr>
+                                    <th>Komponen</th>
+                                    <th>Merk Terakhir</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($asset->components as $comp)
+                                    <tr>
+                                        <td>{{ $comp->name_component }}</td>
+                                        <td>{{ $lastMerks[$comp->id_component] ?? '-' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <span class="text-sm text-gray-400">Tidak ada komponen.</span>
+                @endif
             </div>
 
         </div>

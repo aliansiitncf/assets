@@ -9,6 +9,7 @@ class DetailAsset extends Component
 {
 
     public $asset;
+    public $lastMerks = [];
     public $search = '';
     public $results;
     public $components = [];

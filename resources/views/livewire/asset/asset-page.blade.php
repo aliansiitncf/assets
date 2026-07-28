@@ -396,6 +396,7 @@
         @include('livewire.asset.asset-modal-qrcode')
         @include('livewire.asset.asset-modalPDF')
         @if ($showModalDetailAset && $selectedAsset)
-            <livewire:asset.detail-asset :asset="$selectedAsset" wire:key="detail-asset-{{ $selectedAsset->id_asset }}" />
+            <livewire:asset.detail-asset :asset="$selectedAsset" :lastMerks="$lastMerks"
+                wire:key="detail-asset-{{ $selectedAsset->id_asset }}" />
         @endif
     </div>

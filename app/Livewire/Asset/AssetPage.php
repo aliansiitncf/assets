@@ -69,6 +69,8 @@ class AssetPage extends Component
     public $selectedAsset = null;
     protected $listeners = ['assetUpdated' => 'refreshAsset', 'closeDetailModal' => 'closeDetail'];
 
+    public $lastMerks  = [];
+
     // methods general
     public function sortBy($field)
     {
@@ -154,8 +156,19 @@ class AssetPage extends Component
         $this->requirePermission('lihat detail aset');
         $this->showModalDetailAset = true;
 
-        $this->selectedAsset = Asset::with(['components', 'locationHistories.location'])
+        $this->selectedAsset = Asset::with(['components', 'repairs.components', 'locationHistories.location'])
             ->findOrFail($id);
+
+        $this->lastMerks = [];
+        foreach ($this->selectedAsset->components as $component) {
+            $last = $this->selectedAsset->repairs
+                ->flatMap->components
+                ->where('id_component', $component->id_component)
+                ->sortByDesc(fn($item) => $item->pivot->date)
+                ->first();
+
+            $this->lastMerks[$component->id_component] = $last?->pivot->merk;
+        }
     }
 
     public function closeDetail()
