@@ -190,7 +190,7 @@ class AssetRepair extends Component
             'selectedComponent' => 'required|exists:components,id_component',
             'merk' => 'nullable|string|min:1',
             'qty' => 'required|integer|min:1',
-            'harga' => 'required|numeric|min:0',
+            'harga' => 'required|integer|min:0',
             'dateInstal' => 'nullable|date',
             'technician' => 'nullable|string|min:1',
             'toko' => 'nullable|string|min:1'
@@ -213,6 +213,7 @@ class AssetRepair extends Component
 
             // reset form
             $this->reset(['selectedComponent', 'merk', 'qty', 'harga', 'dateInstal', 'technician', 'toko']);
+            $this->dispatch('reset-harga');
         }
     }
 

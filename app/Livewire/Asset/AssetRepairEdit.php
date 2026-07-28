@@ -318,7 +318,7 @@ class AssetRepairEdit extends Component
             'selectedComponent' => 'required|exists:components,id_component',
             'merk' => 'required|string|min:1',
             'qty' => 'required|integer|min:1',
-            'harga' => 'required|numeric|min:0',
+            'harga' => 'required|integer|min:0',
             'dateInstal' => 'nullable|date',
             'technician' => 'nullable|string|min:1',
         ]);

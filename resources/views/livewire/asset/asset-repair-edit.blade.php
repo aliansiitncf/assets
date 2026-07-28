@@ -224,9 +224,22 @@
 
                                     <div>
                                         <label class="label py-1"><span class="label-text">Harga</span></label>
-                                        <input type="number" min="0" wire:model="harga"
-                                            class="input input-bordered input-sm w-full @error('harga') input-error @enderror"
-                                            placeholder="Harga">
+
+                                        <div class="join w-full" x-data="{ formatted: '{{ $harga ? number_format($harga, 0, ',', '.') : '' }}' }"
+                                            x-on:reset-harga.window="formatted = ''">
+                                            <span
+                                                class="join-item flex items-center px-3 bg-base-200 border border-base-300 text-sm">Rp</span>
+                                            <input type="text" inputmode="numeric" autocomplete="off"
+                                                x-model="formatted"
+                                                class="input input-bordered input-sm join-item w-full @error('harga') input-error @enderror"
+                                                placeholder="0"
+                                                x-on:input="
+                                                    let raw = $event.target.value.replace(/\D/g, '');
+                                                    formatted = raw ? new Intl.NumberFormat('id-ID').format(raw) : '';
+                                                    $wire.set('harga', raw ? parseInt(raw) : null, true);
+                                                ">
+                                        </div>
+
                                         @error('harga')
                                             <span class="text-xs text-error">{{ $message }}</span>
                                         @enderror
@@ -322,9 +335,19 @@
                                                             class="input input-sm input-bordered w-20 text-center" />
                                                     </td>
                                                     <td>
-                                                        <input type="number" min="0"
-                                                            wire:model="repairComponents.{{ $index }}.harga"
-                                                            class="input input-sm input-bordered w-28 text-right" />
+                                                        <div class="join w-full" x-data="{ formatted: '{{ $repairComponents[$index]['harga'] ?? '' ? number_format($repairComponents[$index]['harga'], 0, ',', '.') : '' }}' }">
+                                                            <span
+                                                                class="join-item flex items-center px-2 bg-base-200 border border-base-300 text-xs">Rp</span>
+                                                            <input type="text" inputmode="numeric"
+                                                                autocomplete="off" x-model="formatted"
+                                                                class="input input-sm input-bordered join-item w-28 text-right"
+                                                                placeholder="0"
+                                                                x-on:input="
+                                                                    let raw = $event.target.value.replace(/\D/g, '');
+                                                                    formatted = raw ? new Intl.NumberFormat('id-ID').format(raw) : '';
+                                                                    $wire.set('repairComponents.{{ $index }}.harga', raw ? parseInt(raw) : null, true);
+                                                                ">
+                                                        </div>
                                                     </td>
                                                     <td>
                                                         <input type="text"

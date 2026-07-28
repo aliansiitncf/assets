@@ -211,9 +211,22 @@
 
                                     <div>
                                         <label class="label py-1"><span class="label-text">Harga</span></label>
-                                        <input type="number" min="0" wire:model="harga"
-                                            class="input input-bordered input-sm w-full @error('harga') input-error @enderror"
-                                            placeholder="Harga">
+
+                                        <div class="join w-full" x-data="{ formatted: '{{ $harga ? number_format($harga, 0, ',', '.') : '' }}' }"
+                                            x-on:reset-harga.window="formatted = ''">
+                                            <span
+                                                class="join-item flex items-center px-3 bg-base-200 border border-base-300 text-sm">Rp</span>
+                                            <input type="text" inputmode="numeric" autocomplete="off"
+                                                x-model="formatted"
+                                                class="input input-bordered input-sm join-item w-full @error('harga') input-error @enderror"
+                                                placeholder="0"
+                                                x-on:input="
+                                                    let raw = $event.target.value.replace(/\D/g, '');
+                                                    formatted = raw ? new Intl.NumberFormat('id-ID').format(raw) : '';
+                                                    $wire.set('harga', raw ? parseInt(raw) : null, true);
+                                                ">
+                                        </div>
+
                                         @error('harga')
                                             <span class="text-xs text-error">{{ $message }}</span>
                                         @enderror
@@ -279,17 +292,17 @@
                                     get grandTotal() {
                                         return this.items.reduce((sum, i) => sum + (i.qty * i.harga), 0);
                                     },
-                                    formatRupiah(value) {
-                                        return 'Rp ' + (value || 0).toLocaleString('id-ID', { maximumFractionDigits: 0 });
-                                    }
                                 }">
                                     <table class="table table-sm">
                                         <thead class="bg-base-200">
                                             <tr>
                                                 <th>Komponen</th>
                                                 <th>Merk</th>
+                                                <th>Toko</th>
                                                 <th class="text-center">Qty</th>
                                                 <th class="text-right">Harga</th>
+                                                <th class="text-right">Teknisi</th>
+                                                <th class="text-right">Tanggal</th>
                                                 <th class="text-right">Subtotal</th>
                                                 <th>Aksi</th>
                                             </tr>
@@ -313,19 +326,42 @@
                                                             class="input input-sm input-bordered w-full" />
                                                     </td>
                                                     <td>
+                                                        <input type="text"
+                                                            wire:model="repairComponents.{{ $index }}.store"
+                                                            class="input input-sm input-bordered w-full" />
+                                                    </td>
+                                                    <td>
                                                         <input type="number" min="1"
                                                             wire:model="repairComponents.{{ $index }}.qty"
-                                                            x-model.number="items[{{ $index }}].qty"
                                                             class="input input-sm input-bordered w-20 text-center" />
                                                     </td>
                                                     <td>
-                                                        <input type="number" min="0"
-                                                            wire:model="repairComponents.{{ $index }}.harga"
-                                                            x-model.number="items[{{ $index }}].harga"
-                                                            class="input input-sm input-bordered w-28 text-right" />
+                                                        <div class="join w-full" x-data="{ formatted: '{{ $repairComponents[$index]['harga'] ?? '' ? number_format($repairComponents[$index]['harga'], 0, ',', '.') : '' }}' }">
+                                                            <span
+                                                                class="join-item flex items-center px-2 bg-base-200 border border-base-300 text-xs">Rp</span>
+                                                            <input type="text" inputmode="numeric"
+                                                                autocomplete="off" x-model="formatted"
+                                                                class="input input-sm input-bordered join-item w-28 text-right"
+                                                                placeholder="0"
+                                                                x-on:input="
+                                                                    let raw = $event.target.value.replace(/\D/g, '');
+                                                                    formatted = raw ? new Intl.NumberFormat('id-ID').format(raw) : '';
+                                                                    $wire.set('repairComponents.{{ $index }}.harga', raw ? parseInt(raw) : null, true);
+                                                                ">
+                                                        </div>
                                                     </td>
-                                                    <td class="text-right font-medium whitespace-nowrap"
-                                                        x-text="formatRupiah(items[{{ $index }}].qty * items[{{ $index }}].harga)">
+                                                    <td>
+                                                        <input type="text"
+                                                            wire:model="repairComponents.{{ $index }}.technician"
+                                                            class="input input-sm input-bordered w-full" />
+                                                    </td>
+                                                    <td>
+                                                        <input type="date"
+                                                            wire:model="repairComponents.{{ $index }}.dateInstal"
+                                                            class="input input-sm input-bordered w-36" />
+                                                    </td>
+                                                    <td class="text-right font-medium whitespace-nowrap">
+                                                        Rp {{ number_format($subtotal, 0, ',', '.') }}
                                                     </td>
                                                     <td class="text-center">
                                                         <button type="button"
@@ -338,10 +374,11 @@
                                         </tbody>
                                         <tfoot>
                                             <tr class="font-semibold bg-base-200">
-                                                <td colspan="4" class="text-right">Total</td>
+                                                <td colspan="7" class="text-right">Total</td>
                                                 <td class="text-right whitespace-nowrap">
-                                                    <span x-text="formatRupiah(grandTotal)"></span>
+                                                    Rp {{ number_format($grandTotal, 0, ',', '.') }}
                                                 </td>
+                                                <td></td>
                                             </tr>
                                         </tfoot>
                                     </table>
