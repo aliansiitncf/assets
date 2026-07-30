@@ -48,29 +48,57 @@
         </div>
         @include('components.layouts.sidebar')
     </div>
+
     @if (session('success') || session('error'))
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                        toast.addEventListener('mouseenter', Swal.stopTimer)
-                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                // trigger toast dari session (untuk full page load / redirect biasa)
+                window.dispatchEvent(new CustomEvent('swal', {
+                    detail: {
+                        icon: "{{ session('success') ? 'success' : 'error' }}",
+                        title: "{{ session('success') ? 'Berhasil' : 'Error' }}",
+                        text: @json(session('success') ?? session('error'))
                     }
-                });
-
-                Toast.fire({
-                    icon: "{{ session('success') ? 'success' : 'error' }}",
-                    title: "{{ session('success') ? 'Berhasil' : 'Error' }}",
-                    text: @json(session('success') ?? session('error'))
-                });
+                }));
             });
         </script>
     @endif
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+
+            function fireToast({
+                icon,
+                title,
+                text
+            }) {
+                Toast.fire({
+                    icon,
+                    title,
+                    text
+                });
+            }
+
+            // dari session flash (full reload)
+            window.addEventListener('swal', (e) => fireToast(e.detail));
+
+            // dari Livewire dispatch (tanpa reload)
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('swal', (event) => fireToast(event));
+            });
+        });
+    </script>
     @livewireScripts
 </body>
 
