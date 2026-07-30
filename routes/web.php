@@ -19,7 +19,9 @@ use App\Livewire\Location\LocationPage;
 use App\Livewire\Permission\PermissionPage;
 use App\Livewire\Role\RolePage;
 use App\Livewire\Setting\PageSetup;
+use App\Livewire\Technician\PageTechnician;
 use App\Livewire\Users\Index;
+use App\Livewire\Vendor\PageVendor;
 use Illuminate\Support\Facades\Route;
 use Tabuna\Breadcrumbs\Trail;
 
@@ -81,4 +83,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('audit-logs', AuditLog::class)->name('audit-logs');
     // Route::get('audit-logs/export', [AssetExport::class, 'exportAuditLogsPdf'])->name('auditLogs.pdf');
 
+
+    // VENDOR
+    Route::get('/vendors', PageVendor::class)->name('vendor.index');
+
+    //Teknisi
+    Route::get('/technicians', PageTechnician::class)->name('technician.index');
 });
