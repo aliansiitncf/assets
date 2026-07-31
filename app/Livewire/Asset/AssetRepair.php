@@ -128,7 +128,7 @@ class AssetRepair extends Component
                         'date'       => $item['dateInstal'] ?? null,
                         'technician_id' => $item['technician_id'] ?? null,
                         'vendor_id'     => $item['vendor_id'] ?? null,
-                        'subtotal'   => $item['subtotal'] ?? ($item['qty'] * $item['harga']),
+                        'subtotal'   =>  $item['harga'],
                     ]);
                 }
 
