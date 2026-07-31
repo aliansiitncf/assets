@@ -7,6 +7,10 @@ use App\Models\Asset;
 use App\Models\AssetComponent;
 use App\Models\AssetRepair as AssetRepairModel;
 use App\Models\Component as ComponentModel;
+use App\Models\Technician as TechnicianModel;
+use App\Models\Vendor as VendorModel;
+use App\Models\Technician;
+use App\Models\Vendor;
 use App\Services\AuditService;
 use App\Services\ImageService;
 use Illuminate\Support\Facades\DB;
@@ -28,8 +32,8 @@ class AssetRepair extends Component
     public $selectedComponent = '';
     public $merk = '';
     public $dateInstal = '';
-    public $toko = '';
-    public $technician = '';
+    public $vendor_id;
+    public $technician_id;
     public $qty = 1;
     public $harga = 0;
     public $subtotal = 0;
@@ -44,12 +48,24 @@ class AssetRepair extends Component
     public $name_component = '';
     public $componentId = null;
 
+    public $vendors = [];
+    public $technicians = [];
+
+    protected $listeners = [
+        'technician-saved' => 'refreshTechnicianList',
+        'vendor-saved' => 'refreshVendorList'
+    ];
+
     public function mount(Asset $asset)
     {
         $this->asset = $asset->load('components');
         $this->name = $asset->name;
         $this->repairAssetId = $asset->id_asset;
         $this->components = $this->asset->components;
+
+        // select vendor & teknisi
+        $this->vendors = Vendor::orderBy('name')->get();
+        $this->technicians = Technician::orderBy('name')->get();
     }
 
     public function render()
@@ -73,8 +89,8 @@ class AssetRepair extends Component
             'repairComponents.*.qty' => 'required|integer|min:1',
             'repairComponents.*.harga' => 'required|numeric|min:0',
             'repairComponents.*.dateInstal' => 'nullable|date',
-            'repairComponents.*.technician' => 'nullable|string|min:1',
-            'repairComponents.*.toko' => 'nullable|string',
+            'repairComponents.*.technician_id' => 'nullable|string|min:1',
+            'repairComponents.*.vendor_id' => 'nullable|string',
         ], [
             'repairComponents.required' => 'Tambahkan minimal satu komponen perbaikan.',
             'repairComponents.min' => 'Tambahkan minimal satu komponen perbaikan.',
@@ -110,8 +126,8 @@ class AssetRepair extends Component
                         'qty'        => $item['qty'],
                         'price'      => $item['harga'],
                         'date'       => $item['dateInstal'] ?? null,
-                        'technician' => $item['technician'] ?? null,
-                        'store'     => $item['toko'] ?? null,
+                        'technician_id' => $item['technician_id'] ?? null,
+                        'vendor_id'     => $item['vendor_id'] ?? null,
                         'subtotal'   => $item['subtotal'] ?? ($item['qty'] * $item['harga']),
                     ]);
                 }
@@ -145,7 +161,8 @@ class AssetRepair extends Component
                 'merk',
                 'qty',
                 'harga',
-                'toko'
+                'vendor_id',
+                'technician_id'
             ]);
             return redirect()->route('assets')
                 ->with('success', 'Data perbaikan berhasil disimpan.');
@@ -192,8 +209,8 @@ class AssetRepair extends Component
             'qty' => 'required|integer|min:1',
             'harga' => 'required|integer|min:0',
             'dateInstal' => 'nullable|date',
-            'technician' => 'nullable|string|min:1',
-            'toko' => 'nullable|string|min:1'
+            'technician_id' => 'required|exists:technicians,id',
+            'vendor_id' => 'required|exists:vendors,id'
         ]);
 
         $component = ComponentModel::find($this->selectedComponent);
@@ -206,13 +223,13 @@ class AssetRepair extends Component
                 'qty' => $this->qty,
                 'harga' => $this->harga,
                 'dateInstal' => $this->dateInstal,
-                'technician' => $this->technician,
-                'subtotal' => $this->qty * $this->harga,
-                'toko' => $this->toko
+                'technician_id' => $this->technician_id,
+                'subtotal' => $this->harga,
+                'vendor_id' => $this->vendor_id
             ];
 
             // reset form
-            $this->reset(['selectedComponent', 'merk', 'qty', 'harga', 'dateInstal', 'technician', 'toko']);
+            $this->reset(['selectedComponent', 'merk', 'qty', 'harga', 'dateInstal', 'technician_id', 'vendor_id']);
             $this->dispatch('reset-harga');
         }
     }
@@ -231,5 +248,20 @@ class AssetRepair extends Component
     public function closeRepairModal()
     {
         $this->isOpen = false;
+    }
+
+    public function refreshTechnicianList($technicianId)
+    {
+        // refresh ulang list teknisi dari database
+        $this->technicians = TechnicianModel::orderBy('name')->get();
+
+        // langsung pilih teknisi yang baru dibuat/diedit di select
+        $this->technician_id = $technicianId;
+    }
+
+    public function refreshVendorList($vendorId)
+    {
+        $this->vendors = VendorModel::orderBy("name")->get();
+        $this->vendor_id = $vendorId;
     }
 }

@@ -234,20 +234,37 @@
 
                                     <div>
                                         <label class="label py-1"><span class="label-text">Toko</span></label>
-                                        <input type="text" wire:model="toko"
-                                            class="input input-bordered input-sm w-full @error('store') input-error @enderror"
-                                            placeholder="nama toko">
-                                        @error('store')
+                                        <select wire:model="vendor_id"
+                                            class="select select-bordered select-sm w-full @error('vendor_id') select-error @enderror">
+                                            <option value="">-- pilih toko --</option>
+                                            @foreach ($vendors as $vendor)
+                                                <option value="{{ $vendor->id }}">{{ $vendor->name }}</option>
+                                            @endforeach
+                                        </select>
+                                        <button type="button" wire:click="$dispatch('openVendorModal')"
+                                            class="btn btn-xs mt-2 btn-outline">
+                                            + vendor Baru
+                                        </button>
+                                        @error('vendor_id')
                                             <span class="text-xs text-error">{{ $message }}</span>
                                         @enderror
                                     </div>
 
                                     <div>
                                         <label class="label py-1"><span class="label-text">Teknisi</span></label>
-                                        <input type="text" wire:model="technician"
-                                            class="input input-bordered input-sm w-full @error('technician') input-error @enderror"
-                                            placeholder="nama teknisi">
-                                        @error('technician')
+                                        <select wire:model="technician_id"
+                                            class="select select-bordered select-sm w-full @error('technician_id') select-error @enderror">
+                                            <option value="">-- pilih teknisi --</option>
+                                            @foreach ($technicians as $technician)
+                                                <option value="{{ $technician->id }}">{{ $technician->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <button type="button" wire:click="$dispatch('openTechnicianModal')"
+                                            class="btn btn-xs mt-2 btn-outline">
+                                            + Teknisi Baru
+                                        </button>
+                                        @error('technician_id')
                                             <span class="text-xs text-error">{{ $message }}</span>
                                         @enderror
                                     </div>
@@ -264,7 +281,7 @@
                                     </div>
                                 </div>
 
-                                <div class="flex gap-2 mt-4">
+                                <div class="flex gap-2 mt-10">
                                     <button type="button" wire:click="addComponentItem"
                                         class="btn btn-primary btn-sm">
                                         + Tambah ke Daftar
@@ -404,5 +421,7 @@
         </form>
 
         @include('livewire.components.modal-component')
+        @livewire('components.ModalTechnician')
+        @livewire('components.ModalVendor')
     </div>
 </div>
