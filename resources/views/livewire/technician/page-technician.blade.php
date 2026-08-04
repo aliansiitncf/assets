@@ -41,7 +41,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($technicians as $technician)
+                @forelse ($technicians as $technician)
                     <tr>
                         <td>{{ $technician->name }}</td>
                         <td>{{ $technician->phone }}</td>
@@ -52,7 +52,11 @@
                                 class="btn btn-sm btn-error">Delete</button>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="3" class="text-center py-4">Tidak ada data teknisi.</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
         <div class="mt-4 p-3">

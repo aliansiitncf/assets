@@ -44,7 +44,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($vendors as $vendor)
+                @forelse ($vendors as $vendor)
                     <tr>
                         <td>{{ $vendor->name }}</td>
                         <td>{{ $vendor->address }}</td>
@@ -56,7 +56,11 @@
                                 class="btn btn-sm btn-error">Delete</button>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="4" class="text-center">Tidak ada data vendor.</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
         <div class="mt-4 p-3">
