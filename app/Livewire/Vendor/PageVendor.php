@@ -21,6 +21,10 @@ class PageVendor extends Component
     public $showModal = false;
     public $modalMode = 'create';
     public $name, $address, $phone, $vendorId;
+
+    public $is_supplier = false;
+    public $is_service = false;
+
     public $updateMode = false;
     public string $search = '';
     public string $sortField = 'created_at';
@@ -82,6 +86,8 @@ class PageVendor extends Component
         $this->name = '';
         $this->address = '';
         $this->phone = '';
+        $this->is_supplier = false;
+        $this->is_service = false;
         $this->vendorId = null;
         $this->updateMode = false;
     }
@@ -91,31 +97,52 @@ class PageVendor extends Component
     public function store()
     {
         $this->validate([
-            'name' => 'required|min:3|unique:vendors,name,' . $this->vendorId . ',id',
+            'name' => 'required|min:3|unique:vendors,name,' . ($this->vendorId ?: 'NULL') . ',id',
             'address' => 'nullable|string|max:255',
-            'phone' => 'nullable|numeric'
+            'phone' => 'nullable|numeric',
+            'is_supplier' => 'required_without:is_service',
+            'is_service' => 'required_without:is_supplier',
+        ], [
+            'is_supplier.required_without' => 'Pilih minimal satu jenis vendor.',
+            'is_service.required_without' => 'Pilih minimal satu jenis vendor.',
         ]);
 
         $message = null;
+        $isEdit = $this->modalMode === 'edit' && $this->vendorId;
 
-        $oldVendor = Vendor::find($this->vendorId);
+        // Ambil data vendor lama SEBELUM diupdate (untuk keperluan audit)
+        $oldVendorModel = $isEdit ? Vendor::find($this->vendorId) : null;
+        $oldVendorData = $oldVendorModel ? [
+            'name'    => $oldVendorModel->name,
+            'address' => $oldVendorModel->address,
+            'phone'   => $oldVendorModel->phone,
+            'is_supplier' => $oldVendorModel->is_supplier,
+            'is_service' => $oldVendorModel->is_service,
+        ] : null;
 
         $vendor = Vendor::updateOrCreate(
             ['id' => $this->vendorId],
             [
-                'name' => $this->name,
+                'name'    => $this->name,
                 'address' => $this->address,
-                'phone' => $this->phone,
+                'phone'   => $this->phone,
+                'is_supplier' => $this->is_supplier,
+                'is_service' => $this->is_service,
             ]
         );
 
-        if ($this->modalMode === 'edit' && $oldVendor) {
-            $auditData = [
-                'name' => [
-                    'before' => $oldVendor->name,
-                    'after' => $vendor->name,
-                ],
-            ];
+        if ($isEdit && $oldVendorData) {
+            // Bandingkan field lama vs baru, hanya simpan yang benar-benar berubah
+            $changes = [];
+            foreach ($oldVendorData as $field => $oldValue) {
+                $newValue = $vendor->{$field};
+                if ($oldValue != $newValue) {
+                    $changes[$field] = [
+                        'before' => $oldValue,
+                        'after'  => $newValue,
+                    ];
+                }
+            }
 
             $message = 'Data vendor berhasil diperbarui.';
 
@@ -123,7 +150,7 @@ class PageVendor extends Component
                 AuditEvent::VENDOR_UPDATED,
                 'vendor_updated',
                 $vendor,
-                ['changes' => $auditData]
+                ['changes' => $changes]
             );
         } else {
             $message = 'Data vendor berhasil ditambahkan.';
@@ -132,9 +159,7 @@ class PageVendor extends Component
                 AuditEvent::VENDOR_CREATED,
                 'vendor_created',
                 $vendor,
-                [
-                    'name' => $this->name,
-                ]
+                ['name' => $this->name]
             );
         }
 
@@ -153,6 +178,8 @@ class PageVendor extends Component
         $this->name = $vendor->name;
         $this->address = $vendor->address;
         $this->phone = $vendor->phone;
+        $this->is_supplier = $vendor->is_supplier;
+        $this->is_service = $vendor->is_service;
         $this->updateMode = true;
     }
 

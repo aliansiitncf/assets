@@ -144,6 +144,9 @@ class PageAssetRepair extends Component
     {
         $this->selectedRepair = AssetRepairModel::with(['asset.latestLocation.location', 'components'])
             ->findOrFail($id);
+        $this->selectedRepair->components->each(function ($component) {
+            $component->pivot->load('vendor', 'technician');
+        });
         $this->isDetailOpen = true;
     }
 

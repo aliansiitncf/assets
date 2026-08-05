@@ -33,6 +33,7 @@ class AssetRepair extends Model
     public function components()
     {
         return $this->belongsToMany(Component::class, 'services_components', 'asset_repair_id', 'component_id')
+            ->using(ServiceComponent::class)
             ->withPivot('merk', 'date', 'vendor_id', 'technician_id', 'qty', 'price', 'subtotal')
             ->withTimestamps();
     }

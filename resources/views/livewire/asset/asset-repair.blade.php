@@ -241,7 +241,7 @@
                                                 <option value="{{ $vendor->id }}">{{ $vendor->name }}</option>
                                             @endforeach
                                         </select>
-                                        <button type="button" wire:click="$dispatch('openVendorModal')"
+                                        <button type="button" wire:click="$dispatch('openVendorModal', 'supplier')"
                                             class="btn btn-xs mt-2 btn-outline">
                                             + vendor Baru
                                         </button>
@@ -260,7 +260,7 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <button type="button" wire:click="$dispatch('openTechnicianModal')"
+                                        <button type="button" wire:click="$dispatch('openVendorModal', 'teknisi')"
                                             class="btn btn-xs mt-2 btn-outline">
                                             + Teknisi Baru
                                         </button>
@@ -344,7 +344,7 @@
                                                     </td>
                                                     <td>
                                                         <input type="text"
-                                                            wire:model="repairComponents.{{ $index }}.store"
+                                                            wire:model="repairComponents.{{ $index }}.vendor"
                                                             class="input input-sm input-bordered w-full" />
                                                     </td>
                                                     <td>
@@ -369,7 +369,7 @@
                                                     </td>
                                                     <td>
                                                         <input type="text"
-                                                            wire:model="repairComponents.{{ $index }}.technician"
+                                                            wire:model="repairComponents.{{ $index }}.teknisi"
                                                             class="input input-sm input-bordered w-full" />
                                                     </td>
                                                     <td>

@@ -213,12 +213,12 @@
                         <span class="truncate is-drawer-close:hidden">Vendor</span>
                     </x-nav-link>
                 </li>
-                <li>
+                {{-- <li>
                     <x-nav-link href="{{ route('technician.index') }}" :active="request()->routeIs('technician.index')">
                         <x-heroicon-o-user class="w-6 h-6 mr-2" />
                         <span class="truncate is-drawer-close:hidden">Teknisi</span>
                     </x-nav-link>
-                </li>
+                </li> --}}
             @endrole
         </ul>
         <ul>

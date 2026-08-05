@@ -16,7 +16,7 @@ return new class extends Migration
             $table->dropColumn(['store', 'technician']);
 
             $table->foreignId('vendor_id')->nullable()->after('date')->constrained('vendors')->nullOnDelete();
-            $table->foreignId('technician_id')->nullable()->after('vendor_id')->constrained('technicians')->nullOnDelete();
+            $table->foreignId('technician_id')->nullable()->after('vendor_id')->constrained('vendors')->nullOnDelete();
         });
     }
 

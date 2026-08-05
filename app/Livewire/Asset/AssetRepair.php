@@ -7,9 +7,7 @@ use App\Models\Asset;
 use App\Models\AssetComponent;
 use App\Models\AssetRepair as AssetRepairModel;
 use App\Models\Component as ComponentModel;
-use App\Models\Technician as TechnicianModel;
 use App\Models\Vendor as VendorModel;
-use App\Models\Technician;
 use App\Models\Vendor;
 use App\Services\AuditService;
 use App\Services\ImageService;
@@ -17,6 +15,9 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+
+// technician-saved => dipanggil dari ModalVendor.php
+// vendor-saved => dipanggil dari ModalVendor.php
 
 #[Title('Components')]
 #[Layout('components.layouts.app')]
@@ -32,8 +33,8 @@ class AssetRepair extends Component
     public $selectedComponent = '';
     public $merk = '';
     public $dateInstal = '';
-    public $vendor_id;
-    public $technician_id;
+    public $vendor_id; // ID Vendor yg  isSupplier = true    
+    public $technician_id; // ID Vendor yg is_service = true
     public $qty = 1;
     public $harga = 0;
     public $subtotal = 0;
@@ -64,8 +65,8 @@ class AssetRepair extends Component
         $this->components = $this->asset->components;
 
         // select vendor & teknisi
-        $this->vendors = Vendor::orderBy('name')->get();
-        $this->technicians = Technician::orderBy('name')->get();
+        $this->vendors = Vendor::where("is_supplier", true)->orderBy('name')->get();
+        $this->technicians = Vendor::where("is_service", true)->orderBy('name')->get();
     }
 
     public function render()
@@ -89,8 +90,8 @@ class AssetRepair extends Component
             'repairComponents.*.qty' => 'required|integer|min:1',
             'repairComponents.*.harga' => 'required|numeric|min:0',
             'repairComponents.*.dateInstal' => 'nullable|date',
-            'repairComponents.*.technician_id' => 'nullable|string|min:1',
-            'repairComponents.*.vendor_id' => 'nullable|string',
+            'repairComponents.*.technician_id' => 'nullable|exists:vendors,id',
+            'repairComponents.*.vendor_id' => 'nullable|exists:vendors,id',
         ], [
             'repairComponents.required' => 'Tambahkan minimal satu komponen perbaikan.',
             'repairComponents.min' => 'Tambahkan minimal satu komponen perbaikan.',
@@ -209,7 +210,7 @@ class AssetRepair extends Component
             'qty' => 'required|integer|min:1',
             'harga' => 'required|integer|min:0',
             'dateInstal' => 'nullable|date',
-            'technician_id' => 'required|exists:technicians,id',
+            'technician_id' => 'required|exists:vendors,id',
             'vendor_id' => 'required|exists:vendors,id'
         ]);
 
@@ -223,9 +224,11 @@ class AssetRepair extends Component
                 'qty' => $this->qty,
                 'harga' => $this->harga,
                 'dateInstal' => $this->dateInstal,
-                'technician_id' => $this->technician_id,
                 'subtotal' => $this->harga,
-                'vendor_id' => $this->vendor_id
+                'teknisi' => VendorModel::find($this->technician_id)?->name ?? null,
+                'vendor' => VendorModel::find($this->vendor_id)?->name ?? null,
+                'technician_id' => $this->technician_id,
+                'vendor_id' => $this->vendor_id,
             ];
 
             // reset form
@@ -250,18 +253,18 @@ class AssetRepair extends Component
         $this->isOpen = false;
     }
 
-    public function refreshTechnicianList($technicianId)
+    public function refreshTechnicianList($isService = false, $technicianId = null)
     {
         // refresh ulang list teknisi dari database
-        $this->technicians = TechnicianModel::orderBy('name')->get();
+        $this->technicians = VendorModel::where("is_service", $isService)->orderBy('name')->get();
 
         // langsung pilih teknisi yang baru dibuat/diedit di select
         $this->technician_id = $technicianId;
     }
 
-    public function refreshVendorList($vendorId)
+    public function refreshVendorList($isSupplier = false, $vendorId = null)
     {
-        $this->vendors = VendorModel::orderBy("name")->get();
+        $this->vendors = VendorModel::where("is_supplier", $isSupplier)->orderBy("name")->get();
         $this->vendor_id = $vendorId;
     }
 }

@@ -109,15 +109,17 @@
                                     @php $grandTotal = 0; @endphp
                                     @foreach ($selectedRepair->components as $component)
                                         @php
-                                            $subtotal = $component->pivot->qty * $component->pivot->price;
+                                            $subtotal =
+                                                $component->pivot->subtotal ??
+                                                $component->pivot->qty * $component->pivot->price;
                                             $grandTotal += $subtotal;
                                         @endphp
                                         <tr>
                                             <td>{{ $component->name_component }}</td>
                                             <td>{{ $component->pivot->merk ?: '-' }}</td>
                                             <td class="text-center">{{ $component->pivot->qty }}</td>
-                                            <td>{{ $component->pivot->store ?: '-' }}</td>
-                                            <td>{{ $component->pivot->technician ?: '-' }}</td>
+                                            <td>{{ $component->pivot->vendor->name ?? '-' }}</td>
+                                            <td>{{ $component->pivot->technician->name ?? '-' }}</td>
                                             <td class="whitespace-nowrap">
                                                 {{ $component->pivot->date ? \Carbon\Carbon::parse($component->pivot->date)->format('d M Y') : '-' }}
                                             </td>

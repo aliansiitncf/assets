@@ -40,6 +40,9 @@
                     <x-table-header :field="'phone'" :sortField="$sortField" :sortDirection="$sortDirection">
                         Nomer HP
                     </x-table-header>
+                    <x-table-header :field="'jenis'" :sortField="$sortField" :sortDirection="$sortDirection">
+                        Jenis
+                    </x-table-header>
                     <th class="text-right">Actions</th>
                 </tr>
             </thead>
@@ -49,6 +52,17 @@
                         <td>{{ $vendor->name }}</td>
                         <td>{{ $vendor->address }}</td>
                         <td>{{ $vendor->phone }}</td>
+                        <td>
+                            @if ($vendor->is_supplier && $vendor->is_service)
+                                Supplier & Teknisi
+                            @elseif ($vendor->is_supplier)
+                                Supplier
+                            @elseif ($vendor->is_service)
+                                Teknisi
+                            @else
+                                Tidak Diketahui
+                            @endif
+                        </td>
                         <td class="text-right space-x-2">
                             <button wire:click="openModal('edit',{{ $vendor->id }})"
                                 class="btn btn-sm btn-warning">Edit</button>
@@ -94,6 +108,27 @@
                         <label class="label">Nomer HP</label>
                         <input type="text" wire:model.defer="phone" class="input input-bordered w-full" />
                         @error('phone')
+                            <span class="text-red-500 text-sm">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    <div class="form-control mb-4">
+                        <label class="label">Jenis Vendor</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" wire:model.defer="is_supplier" class="checkbox checkbox-primary">
+                                <span>Supplier</span>
+                            </label>
+
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" wire:model.defer="is_service" class="checkbox checkbox-primary">
+                                <span>Jasa Service</span>
+                            </label>
+                        </div>
+
+                        @error('is_supplier')
+                            <span class="text-red-500 text-sm">{{ $message }}</span>
+                        @enderror
+                        @error('is_service')
                             <span class="text-red-500 text-sm">{{ $message }}</span>
                         @enderror
                     </div>

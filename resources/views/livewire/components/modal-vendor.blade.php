@@ -43,6 +43,27 @@
                         <span class="text-red-500 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
+                <div class="form-control mb-4">
+                    <label class="label">Jenis Vendor</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" wire:model.defer="is_supplier" class="checkbox checkbox-primary">
+                            <span>Supplier</span>
+                        </label>
+
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" wire:model.defer="is_service" class="checkbox checkbox-primary">
+                            <span>Jasa Service</span>
+                        </label>
+                    </div>
+
+                    @error('is_supplier')
+                        <span class="text-red-500 text-sm">{{ $message }}</span>
+                    @enderror
+                    @error('is_service')
+                        <span class="text-red-500 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
 
                 {{-- ACTION --}}
                 <div class="modal-action">
