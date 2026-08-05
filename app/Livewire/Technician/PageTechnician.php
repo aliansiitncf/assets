@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Technician;
 
+use App\Enums\AuditEvent;
 use App\Models\Technician;
+use App\Services\AuditService;
 use App\Traits\HasAuthorization;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -87,7 +89,11 @@ class PageTechnician extends Component
             'phone' => 'nullable|numeric'
         ]);
 
-        Technician::updateOrCreate(
+        $message = null;
+
+        $oldTechnician = Technician::find($this->technicianId);
+
+        $technician = Technician::updateOrCreate(
             ['id' => $this->technicianId],
             [
                 'name' => $this->name,
@@ -95,10 +101,32 @@ class PageTechnician extends Component
             ]
         );
 
-        $message = $this->modalMode === 'edit'
-            ? 'Data teknisi berhasil diperbarui.'
-            : 'Data teknisi berhasil ditambah.';
+        if ($this->modalMode === 'edit' && $oldTechnician) {
+            $auditData = [
+                'name' => [
+                    'before' => $oldTechnician->name,
+                    'after' => $technician->name,
+                ],
+            ];
 
+            $message = 'Data teknisi berhasil diperbarui.';
+
+            AuditService::log(
+                AuditEvent::TECHNICIAN_UPDATED,
+                'technician_updated',
+                $technician,
+                ['changes' => $auditData]
+            );
+        } else {
+            $message = 'Data teknisi berhasil ditambahkan.';
+
+            AuditService::log(
+                AuditEvent::TECHNICIAN_CREATED,
+                'technician_created',
+                $technician,
+                ['name' => $technician->name]
+            );
+        }
 
         $this->resetInputFields();
         $this->closeModal();
@@ -123,6 +151,14 @@ class PageTechnician extends Component
         $technician = technician::find($id);
         $technician->delete();
         $this->resetPageIfEmpty();
+
+        AuditService::log(
+            AuditEvent::TECHNICIAN_DELETED,
+            'technician_deleted',
+            $technician,
+            ['name' => $technician->name]
+        );
+
         $this->dispatch('swal', icon: 'success', title: 'Berhasil', text: 'Data teknisi berhasil dihapus.');
     }
 

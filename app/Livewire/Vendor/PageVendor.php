@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Vendor;
 
+use App\Enums\AuditEvent;
 use App\Models\Vendor;
+use App\Services\AuditService;
 use App\Traits\HasAuthorization;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -94,7 +96,11 @@ class PageVendor extends Component
             'phone' => 'nullable|numeric'
         ]);
 
-        Vendor::updateOrCreate(
+        $message = null;
+
+        $oldVendor = Vendor::find($this->vendorId);
+
+        $vendor = Vendor::updateOrCreate(
             ['id' => $this->vendorId],
             [
                 'name' => $this->name,
@@ -103,9 +109,34 @@ class PageVendor extends Component
             ]
         );
 
-        $message = $this->modalMode === 'edit'
-            ? 'Data vendor berhasil diperbarui.'
-            : 'Data vendor berhasil ditambah.';
+        if ($this->modalMode === 'edit' && $oldVendor) {
+            $auditData = [
+                'name' => [
+                    'before' => $oldVendor->name,
+                    'after' => $vendor->name,
+                ],
+            ];
+
+            $message = 'Data vendor berhasil diperbarui.';
+
+            AuditService::log(
+                AuditEvent::VENDOR_UPDATED,
+                'vendor_updated',
+                $vendor,
+                ['changes' => $auditData]
+            );
+        } else {
+            $message = 'Data vendor berhasil ditambahkan.';
+
+            AuditService::log(
+                AuditEvent::VENDOR_CREATED,
+                'vendor_created',
+                $vendor,
+                [
+                    'name' => $this->name,
+                ]
+            );
+        }
 
         $this->resetInputFields();
         $this->closeModal();
@@ -131,6 +162,14 @@ class PageVendor extends Component
         $vendor = Vendor::find($id);
         $vendor->delete();
         $this->resetPageIfEmpty();
+
+        AuditService::log(
+            AuditEvent::VENDOR_DELETED,
+            'vendor_deleted',
+            $vendor,
+            ['name' => $vendor->name]
+        );
+
         $this->dispatch('swal', icon: 'success', title: 'Berhasil', text: 'Data vendor berhasil dihapus.');
     }
 

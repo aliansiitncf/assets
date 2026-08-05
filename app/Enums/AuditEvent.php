@@ -5,10 +5,6 @@ namespace App\Enums;
 
 class AuditEvent
 {
-    const ASSET_CREATED = 'asset_created';
-    const ASSET_UPDATED = 'asset_updated';
-    const ASSET_DELETED = 'asset_deleted';
-
     const LOGGED_IN = 'logged_in';
     const LOGGED_OUT = 'logged_out';
 
@@ -36,4 +32,16 @@ class AuditEvent
 
     const ASSET_DETAIL_ADDED = 'asset_detail_added';
     const ASSET_DETAIL_UPDATED = 'asset_detail_updated';
+
+    const ASSET_CREATED = 'asset_created';
+    const ASSET_UPDATED = 'asset_updated';
+    const ASSET_DELETED = 'asset_deleted';
+
+    const VENDOR_CREATED = 'vendor_created';
+    const VENDOR_UPDATED = 'vendor_updated';
+    const VENDOR_DELETED = 'vendor_deleted';
+
+    const TECHNICIAN_CREATED = 'technician_created';
+    const TECHNICIAN_UPDATED = 'technician_updated';
+    const TECHNICIAN_DELETED = 'technician_deleted';
 }

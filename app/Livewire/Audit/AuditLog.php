@@ -10,14 +10,46 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Spatie\Activitylog\Models\Activity;
 
+
 #[Title('Audit Logs')]
 #[Layout('components.layouts.app')]
 class AuditLog extends Component
 {
     use WithPagination;
-    public $perPage = 10;
     public $showModalPDF = false;
     public $startDate, $endDate;
+    public string $search = '';
+    public string $sortField = 'created_at';
+    public string $sortDirection = 'asc';
+    public int $perPage = 10;
+
+    private function getQuery()
+    {
+        return Activity::query()
+            ->when($this->search, fn($q) => $q->where('description', 'like', "%{$this->search}%"))
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->paginate($this->perPage);
+    }
+
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedPerPage(): void
+    {
+        $this->resetPage();
+    }
+
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+    }
 
     public function openModalPDF()
     {
@@ -55,11 +87,10 @@ class AuditLog extends Component
     {
         $this->resetPage();
     }
+
     public function render()
     {
-        $logs = Activity::with('causer')
-            ->latest()
-            ->paginate($this->perPage);
+        $logs = $this->getQuery();
         return view('livewire.audit.audit-log', [
             'logs' => $logs,
         ]);

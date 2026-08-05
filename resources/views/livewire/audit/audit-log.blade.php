@@ -72,6 +72,9 @@
 
                                 @case('component_updated')
                                 @case('location_updated')
+
+                                @case('vendor_updated')
+                                @case('technician_updated')
                                     @include('livewire.audit.logs.changes')
                                 @break
 
@@ -92,6 +95,12 @@
 
                                 @case('asset_repair_completed')
                                 @case('location_moved')
+
+                                @case('vendor_created')
+                                @case('vendor_deleted')
+
+                                @case('technician_created')
+                                @case('technician_deleted')
                                     @include('livewire.audit.logs.simple')
                                 @break
 
@@ -105,7 +114,7 @@
             </tbody>
         </table>
         <div class="p-3">
-            {{ $logs->links() }}
+            {{ $logs->links('vendor.pagination.custom') }}
         </div>
 
     </div>
