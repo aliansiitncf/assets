@@ -147,10 +147,19 @@
                 </option>
             @endforeach
         </select>
+
+        <select wire:model.live.debounce.300ms="filterCondition"
+            class="select select-xs select-bordered w-full
+                                     {{ $filterCondition ? 'select-primary' : '' }}">
+            <option value="">All Condition</option>
+            <option value="Baik">Baik</option>
+            <option value="Perbaikan">Perbaikan</option>
+            <option value="Rusak">Rusak</option>
+        </select>
     </div>
     <div class="overflow-x-auto shadow-md rounded-box border border-base-content/5 mb-4">
         <div class="overflow-x-auto">
-            @if ($filterCategory || $filterLocation)
+            @if ($filterCategory || $filterLocation || $filterCondition)
                 <div class="flex items-center gap-2 mb-3">
 
                     <span class="text-sm font-medium">Active Filter :</span>
@@ -159,6 +168,15 @@
                         <div class="badge badge-primary gap-1">
                             {{ $categories->firstWhere('id_category', $filterCategory)->name ?? 'Unknown Category' }}
                             <button wire:click="$set('filterCategory', null)">
+                                ✕
+                            </button>
+                        </div>
+                    @endif
+
+                    @if ($filterCondition)
+                        <div class="badge badge-info gap-1">
+                            {{ $filterCondition }}
+                            <button wire:click="$set('filterCondition', null)">
                                 ✕
                             </button>
                         </div>

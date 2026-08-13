@@ -31,10 +31,20 @@ class PageVendor extends Component
     public string $sortDirection = 'asc';
     public int $perPage = 10;
 
+    public $filterJenis = '';
+
+
     private function getQuery()
     {
         return Vendor::query()
             ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
+            ->when($this->filterJenis, function ($q) {
+                if ($this->filterJenis === 'supplier') {
+                    $q->where('is_supplier', true);
+                } elseif ($this->filterJenis === 'service') {
+                    $q->where('is_service', true);
+                }
+            })
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
     }
@@ -52,6 +62,11 @@ class PageVendor extends Component
     }
 
     public function updatedPerPage(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFilterJenis(): void
     {
         $this->resetPage();
     }

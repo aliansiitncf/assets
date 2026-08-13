@@ -12,15 +12,21 @@
         </div>
     @endif
     <h1 class="text-2xl font-bold">Vendor Management</h1>
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex justify-between items-center mb-4 w-full">
         <div class="my-4 flex gap-2 items-center">
             <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search Categories..."
                 class="input input-bordered w-full" />
-            <select wire:model.live="perPage" class="select select-bordered w-36">
+            <select wire:model.live="perPage" class="select select-bordered w-48">
                 <option value="5">5 / page</option>
                 <option value="10">10 / page</option>
                 <option value="25">25 / page</option>
                 <option value="50">50 / page</option>
+            </select>
+
+            <select wire:model.live="filterJenis" class="select select-bordered w-48">
+                <option value="">Semua Jenis</option>
+                <option value="supplier">Supplier</option>
+                <option value="service">Teknisi</option>
             </select>
         </div>
         <button wire:click="openModal('create')" class="btn btn-primary">Tambah vendor</button>
@@ -78,7 +84,7 @@
             </tbody>
         </table>
         <div class="mt-4 p-3">
-            {{ $vendors->links() }}
+            {{ $vendors->links('vendor.pagination.custom') }}
         </div>
 
     </div>

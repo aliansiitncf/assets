@@ -50,6 +50,7 @@ class AssetPage extends Component
     public $filterCategoryDownload = '';
     public $filterLocation = '';
     public $filterLocationDownload = '';
+    public $filterCondition = '';
     public $startDate = null;
     public $endDate = null;
 
@@ -106,6 +107,10 @@ class AssetPage extends Component
         $this->resetPage();
     }
     public function updatedFilterLocation()
+    {
+        $this->resetPage();
+    }
+    public function updatedFilterCondition()
     {
         $this->resetPage();
     }
@@ -340,6 +345,9 @@ class AssetPage extends Component
                 return $query->whereHas('latestLocation', function ($query) {
                     $query->where('location_id', $this->filterLocation);
                 });
+            })
+            ->when($this->filterCondition, function ($query) {
+                return $query->where('condition', $this->filterCondition);
             })
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
