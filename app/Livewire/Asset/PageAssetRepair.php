@@ -227,7 +227,7 @@ class PageAssetRepair extends Component
     {
         $query = AssetRepairModel::select('asset_id', DB::raw('SUM(poin) as total_poin'))
             ->groupBy('asset_id')
-            ->with('asset:id_asset,asset_code')
+            ->with('asset:id_asset,asset_code,name')
             ->when($this->locationFilter, fn($q) => $q->whereHas('asset.latestLocation.location', function ($q) {
                 $q->where('id_location', $this->locationFilter);
             }))
@@ -240,14 +240,14 @@ class PageAssetRepair extends Component
         $data = $query->orderByDesc('total_poin')->limit(10)->get();
 
         return [
-            'labels' => $data->pluck('asset.asset_code'),
+            'labels' =>  $data->map(fn($item) => $item->asset?->name . ' (' . $item->asset?->asset_code . ')'),
             'values' => $data->pluck('total_poin'),
         ];
     }
 
     public function getBiayaChartDataProperty()
     {
-        $query = AssetRepairModel::with(['asset:id_asset,asset_code', 'components'])
+        $query = AssetRepairModel::with(['asset:id_asset,asset_code,name', 'components'])
             ->when($this->locationFilter, fn($q) => $q->whereHas('asset.latestLocation.location', function ($q) {
                 $q->where('id_location', $this->locationFilter);
             }))
@@ -260,11 +260,12 @@ class PageAssetRepair extends Component
         $data = $query->get()
             ->groupBy('asset_id')
             ->map(function ($repairs, $assetId) {
+                $asset = $repairs->first()->asset;
                 $total = $repairs->flatMap->components
                     ->sum(fn($c) => $c->pivot->qty * $c->pivot->price);
 
                 return [
-                    'asset_code' => optional($repairs->first()->asset)->asset_code,
+                    'label' => optional($asset)->name . ' (' . optional($asset)->asset_code . ')',
                     'total' => $total,
                 ];
             })
@@ -273,7 +274,7 @@ class PageAssetRepair extends Component
             ->values();
 
         return [
-            'labels' => $data->pluck('asset_code'),
+            'labels' => $data->pluck('label'),
             'values' => $data->pluck('total'),
         ];
     }
