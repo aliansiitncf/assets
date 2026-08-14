@@ -146,7 +146,7 @@
     <!-- SUMMARY -->
     <div class="summary">
         <h4>Total Asset Repair Recorded</h4>
-        <span>{{ count($assetRepairs) }} Units</span>
+        <span>{{ count($assetRepairs) }} Perbaikan</span>
     </div>
 
     <!-- TABLE -->
