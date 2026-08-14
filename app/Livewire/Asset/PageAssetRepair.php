@@ -24,6 +24,9 @@ class PageAssetRepair extends Component
     public $perPage = 10;
     public $showModalPDF = false;
 
+    public $selectedAssetId = null;
+    public $assetRepairsForSelected = [];
+
     // Props untuk filter tanggal
     public $startDate;
     public $endDate;
@@ -95,7 +98,7 @@ class PageAssetRepair extends Component
         )->get();
 
         // ✅ GENERATE PDF
-        $pdf = Pdf::loadView('exports.asset-Repair-export', [
+        $pdf = Pdf::loadView('exports.asset-repair-export', [
             'assetRepairs' => $assetRepairs,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate
@@ -113,31 +116,50 @@ class PageAssetRepair extends Component
 
     public function render()
     {
-        $assetRepairs = AssetRepairModel::query()
-            ->with(['asset.latestLocation.location'])
+        $assets = Asset::query()
+            ->whereHas('repairs')
             ->when($this->search, function ($query) {
-                $query->whereHas('asset', function ($q) {
+                $query->where(function ($q) {
                     $q->where('name', 'like', "%{$this->search}%")
                         ->orWhere('asset_code', 'like', "%{$this->search}%");
                 });
             })
             ->when($this->locationFilter, function ($query) {
-                $query->whereHas('asset.latestLocation.location', function ($q) {
+                $query->whereHas('latestLocation.location', function ($q) {
                     $q->where('id_location', $this->locationFilter);
                 });
             })
             ->when($this->categoryFilter, function ($query) {
-                $query->whereHas('asset.category', function ($q) {
-                    $q->where('id_category', $this->categoryFilter);
-                });
+                $query->where('id_category', $this->categoryFilter);
             })
-            ->when($this->startDate, fn($query) => $query->whereDate('started_at', '>=', $this->startDate))
-            ->when($this->endDate, fn($query) => $query->whereDate('started_at', '<=', $this->endDate))
-            ->latest('started_at')
+            ->when($this->startDate, function ($query) {
+                $query->whereHas('repairs', fn($q) => $q->whereDate('started_at', '>=', $this->startDate));
+            })
+            ->when($this->endDate, function ($query) {
+                $query->whereHas('repairs', fn($q) => $q->whereDate('started_at', '<=', $this->endDate));
+            })
+            ->withCount('repairs')
+            ->with(['latestLocation.location', 'category'])
             ->paginate($this->perPage);
 
 
-        return view('livewire.asset.page-asset-repair', compact('assetRepairs'));
+        return view('livewire.asset.page-asset-repair', compact('assets'));
+    }
+
+    public function toggleAsset($assetId)
+    {
+        if ($this->selectedAssetId === $assetId) {
+            $this->selectedAssetId = null;
+            $this->assetRepairsForSelected = [];
+            return;
+        }
+
+        $this->selectedAssetId = $assetId;
+        $this->assetRepairsForSelected = AssetRepairModel::where('asset_id', $assetId)
+            ->when($this->startDate, fn($q) => $q->whereDate('started_at', '>=', $this->startDate))
+            ->when($this->endDate, fn($q) => $q->whereDate('started_at', '<=', $this->endDate))
+            ->latest('started_at')
+            ->get();
     }
 
     public function showDetail($id)
@@ -157,26 +179,37 @@ class PageAssetRepair extends Component
     }
 
     //filter
+
+    public function updatedSearch()
+    {
+        $this->selectedAssetId = null;
+        $this->resetPage();
+    }
+
     public function updatedStartDate()
     {
+        $this->selectedAssetId = null;
         $this->resetPage();
         $this->dispatch('charts-updated');
     }
 
     public function updatedEndDate()
     {
+        $this->selectedAssetId = null;
         $this->resetPage();
         $this->dispatch('charts-updated');
     }
 
     public function updatedLocationFilter()
     {
+        $this->selectedAssetId = null;
         $this->resetPage();
         $this->dispatch('charts-updated');
     }
 
     public function updatedCategoryFilter()
     {
+        $this->selectedAssetId = null;
         $this->resetPage();
         $this->dispatch('charts-updated');
     }

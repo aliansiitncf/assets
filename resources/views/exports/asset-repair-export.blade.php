@@ -65,61 +65,51 @@
             color: #ea580c;
         }
 
-        /* ASSET CARD */
-        .asset {
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 12px;
-            page-break-inside: avoid;
+        /* REPORT TABLE */
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10.5px;
         }
 
-        .asset-image {
-            width: 110px;
-            height: 110px;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            background: #f9fafb;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        .asset-image img {
-            width: 110px;
-            height: 110px;
-        }
-
-        .asset-code {
-            font-size: 10px;
-            font-family: monospace;
-            color: #000000;
-        }
-
-        .asset-name {
-            font-size: 13px;
-            font-weight: bold;
-            margin: 4px 0 6px;
-        }
-
-        .badge {
-            display: inline-block;
-            font-size: 9px;
-            padding: 3px 8px;
+        .report-table thead th {
             background: #ea580c;
             color: #fff;
-            border-radius: 20px;
-            margin-bottom: 8px;
+            text-align: left;
+            padding: 7px 8px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .3px;
         }
 
-        .asset-info {
-            font-size: 11px;
-            line-height: 1.6;
+        .report-table tbody td {
+            padding: 7px 8px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
         }
 
-        .asset-info span {
+        .report-table tbody tr.even {
+            background: #f9fafb;
+        }
+
+        .report-table .asset-name {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .report-table .asset-code {
+            font-family: monospace;
+            font-size: 9.5px;
             color: #6b7280;
+        }
+
+        .report-table .badge {
             display: inline-block;
-            width: 70px;
+            font-size: 8px;
+            padding: 2px 6px;
+            background: #ffedd5;
+            color: #9a3412;
+            border-radius: 10px;
         }
 
         /* FOOTER */
@@ -143,12 +133,12 @@
         <tr>
             <td>
                 <div class="company">PT Nuclear Coating Fabric</div>
-                <div class="title">Asset Inventory Report</div>
+                <div class="title">Asset Repair Report</div>
             </td>
             <td class="meta">
                 Report ID : RPT-{{ date('Ymd') }}<br>
-                Date : {{ date('d F Y') }}<br>
-                PIC : {{ auth()->user()->name }}
+                Date : {{ $startDate }} to {{ $endDate }}<br>
+                Downloaded By : {{ auth()->user()->name }}
             </td>
         </tr>
     </table>
@@ -159,56 +149,44 @@
         <span>{{ count($assetRepairs) }} Units</span>
     </div>
 
-    <!-- GRID 2 KOLOM -->
-    <table width="100%" cellspacing="0" cellpadding="0">
-        <tr>
-            @foreach($assetRepairs as $index => $assetRepair)
-            <td width="50%" valign="top" style="padding:6px">
-
-                <div class="asset">
-                    <table width="100%">
-                        <tr>
-                            <!-- IMAGE -->
-                            <td width="110" valign="top">
-                                <div class="asset-image">
-                                    @if($assetRepair->image_path && file_exists(public_path('storage/' . $assetRepair->image_path)))
-                                    <img src="{{ public_path('storage/' . $assetRepair->image_path) }}">
-                                    @else
-                                    <div style="font-size:10px;color:#aaa;margin-top:45px">No Image</div>
-                                    @endif
-                                </div>
-                            </td>
-
-                            <!-- CONTENT -->
-                            <td valign="top" style="padding-left:12px">
-                                <div class="asset-code">{{ $assetRepair->asset->asset_code }}</div>
-                                <div class="asset-name">{{ $assetRepair->asset->name }}</div>
-
-                                @if($assetRepair->asset->category)
-                                <div class="badge">{{ strtoupper($assetRepair->asset->category->name) }}</div>
-                                @endif
-
-                                <div class="asset-info">
-                                    <div><span>Notes</span>:
-                                        {{ $assetRepair->repair_note }}</div>
-                                    <div><span>Location</span>:
-                                        {{ optional($assetRepair->asset->latestLocation)->location->name ?? '-' }}</div>
-                                    <div><span>Status</span>: {{ $assetRepair->asset->condition }}</div>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-
-            </td>
-
-            @if(($index + 1) % 2 == 0)
-        </tr>
-        <tr>
-            @endif
+    <!-- TABLE -->
+    <table class="report-table" width="100%" cellpadding="0" cellspacing="0">
+        <thead>
+            <tr>
+                <th style="width:24px">No</th>
+                <th style="width:75px">Kode Aset</th>
+                <th>Nama Aset</th>
+                <th style="width:90px">Lokasi</th>
+                <th style="width:75px">Status</th>
+                <th style="width:60px">Out Service</th>
+                <th style="width:60px">In Service</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($assetRepairs as $assetRepair)
+                <tr class="{{ $loop->even ? 'even' : '' }}">
+                    <td>{{ $loop->iteration }}</td>
+                    <td class="asset-code">{{ $assetRepair->asset->asset_code }}</td>
+                    <td>
+                        <div class="asset-name">{{ $assetRepair->asset->name }}</div>
+                        @if ($assetRepair->asset->category)
+                            <span class="badge">{{ strtoupper($assetRepair->asset->category->name) }}</span>
+                        @endif
+                    </td>
+                    <td>{{ optional($assetRepair->asset->latestLocation)->location->name ?? '-' }}</td>
+                    <td>{{ $assetRepair->status }}</td>
+                    <td>{{ $assetRepair->started_at ? \Carbon\Carbon::parse($assetRepair->started_at)->format('d M Y') : '-' }}
+                    </td>
+                    <td>{{ $assetRepair->completed_at ? \Carbon\Carbon::parse($assetRepair->completed_at)->format('d M Y') : '-' }}
+                    </td>
+                    <td>{{ $assetRepair->repair_note }}</td>
+                </tr>
             @endforeach
-        </tr>
+        </tbody>
     </table>
+
+
 
     <div class="footer">
         Generated by Asset Management System
