@@ -3,6 +3,7 @@
 namespace App\Livewire\Vendor;
 
 use App\Enums\AuditEvent;
+use App\Exports\VendorsExport;
 use App\Models\Vendor;
 use App\Services\AuditService;
 use App\Traits\HasAuthorization;
@@ -10,6 +11,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 #[Title('Vendor')]
@@ -32,6 +34,12 @@ class PageVendor extends Component
     public int $perPage = 10;
 
     public $filterJenis = '';
+
+    // Export properties
+    public $showExportModal = false;
+    public $exportStartDate = '';
+    public $exportEndDate = '';
+    public $exportFilterJenis = '';
 
 
     private function getQuery()
@@ -94,6 +102,49 @@ class PageVendor extends Component
     public function closeModal()
     {
         $this->showModal = false;
+    }
+
+    // --- Export Methods ---
+
+    public function openExportModal()
+    {
+        $this->resetExportFields();
+        $this->showExportModal = true;
+    }
+
+    public function closeExportModal()
+    {
+        $this->showExportModal = false;
+    }
+
+    public function resetExportFields()
+    {
+        $this->exportStartDate = '';
+        $this->exportEndDate = '';
+        $this->exportFilterJenis = '';
+    }
+
+    public function exportVendor()
+    {
+        $this->validate([
+            'exportStartDate' => 'nullable|date',
+            'exportEndDate'   => 'nullable|date|after_or_equal:exportStartDate',
+        ], [
+            'exportEndDate.after_or_equal' => 'Tanggal akhir harus sama atau setelah tanggal mulai.',
+        ]);
+
+        $startDate = $this->exportStartDate ?: null;
+        $endDate = $this->exportEndDate ?: null;
+        $filterJenis = $this->exportFilterJenis ?: null;
+
+        $this->closeExportModal();
+
+        $filename = 'vendors-' . now()->format('Y-m-d_His') . '.xlsx';
+
+        return Excel::download(
+            new VendorsExport($startDate, $endDate, $filterJenis),
+            $filename
+        );
     }
 
     public function resetInputFields()
