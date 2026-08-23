@@ -6,50 +6,60 @@ use App\Enums\AuditEvent;
 use App\Exports\AssetRepairExport;
 use App\Models\Asset;
 use App\Models\AssetRepair as AssetRepairModel;
+use App\Models\Category;
+use App\Models\Location;
 use App\Services\AuditService;
 use App\Traits\HasAuthorization;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
-use Maatwebsite\Excel\Facades\Excel;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 #[Title('Asset Repair')]
 #[Layout('components.layouts.app')]
 class PageAssetRepair extends Component
 {
     use HasAuthorization, WithPagination;
+
     public $search = '';
+
     public $perPage = 10;
+
     public $showModalPDF = false;
 
     public $selectedAssetId = null;
+
     public $assetRepairsForSelected = [];
 
     // Props untuk filter tanggal
     public $startDate;
+
     public $endDate;
 
     // Props untuk filter kategori
     public $categoryFilter = '';
+
     public $categories = [];
 
     // props detail modal repair
     public $isDetailOpen = false;
+
     public $selectedRepair = null;
 
     // props filter location
     public $locationFilter = '';
+
     public $locations = [];
 
     public function mount()
     {
         $this->requirePermission('lihat aset perbaikan');
-        $this->locations = \App\Models\Location::all();
-        $this->categories = \App\Models\Category::orderBy('name')->get();
+        $this->locations = Location::all();
+        $this->categories = Category::orderBy('name')->get();
     }
 
     public function completeRepair($repairId)
@@ -72,7 +82,7 @@ class PageAssetRepair extends Component
             [
                 'asset_code' => $assetRepair->asset->asset_code,
                 'name' => $assetRepair->asset->name,
-                'completed_at' => $assetRepair->completed_at->format('d M Y H:i')
+                'completed_at' => $assetRepair->completed_at->format('d M Y H:i'),
             ]
         );
     }
@@ -87,7 +97,7 @@ class PageAssetRepair extends Component
         $this->reset([
             'showModalPDF',
             'startDate',
-            'endDate'
+            'endDate',
         ]);
     }
 
@@ -103,15 +113,16 @@ class PageAssetRepair extends Component
         $pdf = Pdf::loadView('exports.asset-repair-export', [
             'assetRepairs' => $assetRepairs,
             'startDate' => $this->startDate,
-            'endDate' => $this->endDate
+            'endDate' => $this->endDate,
         ]);
         $this->reset([
             'startDate',
-            'endDate'
+            'endDate',
         ]);
-        $filename = 'asset-repair-' . Carbon::now()->format('d-m-Y') . '.pdf';
+        $filename = 'asset-repair-'.Carbon::now()->format('d-m-Y').'.pdf';
+
         return response()->streamDownload(
-            fn() => print($pdf->output()),
+            fn () => print ($pdf->output()),
             $filename
         );
     }
@@ -119,7 +130,7 @@ class PageAssetRepair extends Component
     public function exportRepairExcel($assetId)
     {
         $asset = Asset::findOrFail($assetId);
-        $filename = 'repair-' . $asset->asset_code . '-' . now()->format('Y-m-d') . '.xlsx';
+        $filename = 'repair-'.$asset->asset_code.'-'.now()->format('Y-m-d').'.xlsx';
 
         return Excel::download(
             new AssetRepairExport($assetId),
@@ -146,15 +157,14 @@ class PageAssetRepair extends Component
                 $query->where('id_category', $this->categoryFilter);
             })
             ->when($this->startDate, function ($query) {
-                $query->whereHas('repairs', fn($q) => $q->whereDate('started_at', '>=', $this->startDate));
+                $query->whereHas('repairs', fn ($q) => $q->whereDate('started_at', '>=', $this->startDate));
             })
             ->when($this->endDate, function ($query) {
-                $query->whereHas('repairs', fn($q) => $q->whereDate('started_at', '<=', $this->endDate));
+                $query->whereHas('repairs', fn ($q) => $q->whereDate('started_at', '<=', $this->endDate));
             })
             ->withCount('repairs')
             ->with(['latestLocation.location', 'category'])
             ->paginate($this->perPage);
-
 
         return view('livewire.asset.page-asset-repair', compact('assets'));
     }
@@ -164,13 +174,14 @@ class PageAssetRepair extends Component
         if ($this->selectedAssetId === $assetId) {
             $this->selectedAssetId = null;
             $this->assetRepairsForSelected = [];
+
             return;
         }
 
         $this->selectedAssetId = $assetId;
         $this->assetRepairsForSelected = AssetRepairModel::where('asset_id', $assetId)
-            ->when($this->startDate, fn($q) => $q->whereDate('started_at', '>=', $this->startDate))
-            ->when($this->endDate, fn($q) => $q->whereDate('started_at', '<=', $this->endDate))
+            ->when($this->startDate, fn ($q) => $q->whereDate('started_at', '>=', $this->startDate))
+            ->when($this->endDate, fn ($q) => $q->whereDate('started_at', '<=', $this->endDate))
             ->latest('started_at')
             ->get();
     }
@@ -191,7 +202,7 @@ class PageAssetRepair extends Component
         $this->selectedRepair = null;
     }
 
-    //filter
+    // filter
 
     public function updatedSearch()
     {
@@ -234,26 +245,25 @@ class PageAssetRepair extends Component
         $this->dispatch('charts-updated');
     }
 
-
     // Grafik
     public function getPoinChartDataProperty()
     {
         $query = AssetRepairModel::select('asset_id', DB::raw('SUM(poin) as total_poin'))
             ->groupBy('asset_id')
             ->with('asset:id_asset,asset_code,name')
-            ->when($this->locationFilter, fn($q) => $q->whereHas('asset.latestLocation.location', function ($q) {
+            ->when($this->locationFilter, fn ($q) => $q->whereHas('asset.latestLocation.location', function ($q) {
                 $q->where('id_location', $this->locationFilter);
             }))
-            ->when($this->categoryFilter, fn($q) => $q->whereHas('asset.category', function ($q) {
+            ->when($this->categoryFilter, fn ($q) => $q->whereHas('asset.category', function ($q) {
                 $q->where('id_category', $this->categoryFilter);
             }))
-            ->when($this->startDate, fn($q) => $q->whereDate('started_at', '>=', $this->startDate))
-            ->when($this->endDate, fn($q) => $q->whereDate('started_at', '<=', $this->endDate));
+            ->when($this->startDate, fn ($q) => $q->whereDate('started_at', '>=', $this->startDate))
+            ->when($this->endDate, fn ($q) => $q->whereDate('started_at', '<=', $this->endDate));
 
         $data = $query->orderByDesc('total_poin')->limit(10)->get();
 
         return [
-            'labels' =>  $data->map(fn($item) => $item->asset?->name . ' (' . $item->asset?->asset_code . ')'),
+            'labels' => $data->map(fn ($item) => $item->asset?->name.' ('.$item->asset?->asset_code.')'),
             'values' => $data->pluck('total_poin'),
         ];
     }
@@ -261,24 +271,24 @@ class PageAssetRepair extends Component
     public function getBiayaChartDataProperty()
     {
         $query = AssetRepairModel::with(['asset:id_asset,asset_code,name', 'components'])
-            ->when($this->locationFilter, fn($q) => $q->whereHas('asset.latestLocation.location', function ($q) {
+            ->when($this->locationFilter, fn ($q) => $q->whereHas('asset.latestLocation.location', function ($q) {
                 $q->where('id_location', $this->locationFilter);
             }))
-            ->when($this->categoryFilter, fn($q) => $q->whereHas('asset.category', function ($q) {
+            ->when($this->categoryFilter, fn ($q) => $q->whereHas('asset.category', function ($q) {
                 $q->where('id_category', $this->categoryFilter);
             }))
-            ->when($this->startDate, fn($q) => $q->whereDate('started_at', '>=', $this->startDate))
-            ->when($this->endDate, fn($q) => $q->whereDate('started_at', '<=', $this->endDate));
+            ->when($this->startDate, fn ($q) => $q->whereDate('started_at', '>=', $this->startDate))
+            ->when($this->endDate, fn ($q) => $q->whereDate('started_at', '<=', $this->endDate));
 
         $data = $query->get()
             ->groupBy('asset_id')
             ->map(function ($repairs, $assetId) {
                 $asset = $repairs->first()->asset;
                 $total = $repairs->flatMap->components
-                    ->sum(fn($c) => $c->pivot->qty * $c->pivot->price);
+                    ->sum(fn ($c) => $c->pivot->qty * $c->pivot->price);
 
                 return [
-                    'label' => optional($asset)->name . ' (' . optional($asset)->asset_code . ')',
+                    'label' => optional($asset)->name.' ('.optional($asset)->asset_code.')',
                     'total' => $total,
                 ];
             })
