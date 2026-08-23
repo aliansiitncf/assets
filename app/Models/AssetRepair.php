@@ -23,6 +23,11 @@ class AssetRepair extends Model
         return $this->belongsTo(Asset::class, 'asset_id', 'id_asset');
     }
 
+    public function damage()
+    {
+        return $this->belongsTo(AssetDamage::class, 'asset_damage_id', 'id_asset_damage');
+    }
+
     public function scopeFilter($query, $startDate = null, $endDate = null)
     {
         return $query->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {

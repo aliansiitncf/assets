@@ -79,7 +79,7 @@ class AssetRepair extends Component
         $this->validate([
             'repairNotes' => 'required|string',
             'out_of_service' => 'required|date',
-            'in_of_service' => 'nullable|date',
+            'in_of_service' => 'nullable|date|after_or_equal:out_of_service',
             'poin' => 'required|integer|min:0',
             'hmkm' => 'required|numeric|min:0',
             'repairImage' => 'nullable|image|max:2048',
@@ -95,11 +95,29 @@ class AssetRepair extends Component
         ], [
             'repairComponents.required' => 'Tambahkan minimal satu komponen perbaikan.',
             'repairComponents.min' => 'Tambahkan minimal satu komponen perbaikan.',
+            'in_of_service.after_or_equal' => 'Tanggal selesai harus sama atau setelah tanggal keluar.',
         ]);
 
+        // 1. Validasi: asset harus berstatus "Rusak"
+        $asset = Asset::findOrFail($this->repairAssetId);
+        if ($asset->condition !== 'Rusak') {
+            $this->addError('repairNotes', 'Asset ini tidak dalam kondisi Rusak. Hanya asset rusak yang dapat diperbaiki.');
+            return;
+        }
+
+        // 2. Cari asset_damage terakhir yang belum di-link ke repair manapun
+        $latestDamage = \App\Models\AssetDamage::where('asset_id', $this->repairAssetId)
+            ->whereDoesntHave('repair') // Hanya damage yang belum punya repair
+            ->latest('reported_at')
+            ->first();
+
+        if (!$latestDamage) {
+            $this->addError('repairNotes', 'Tidak ditemukan data kerusakan yang bisa dihubungkan dengan perbaikan ini.');
+            return;
+        }
 
         try {
-            DB::transaction(function () use ($imageService) {
+            DB::transaction(function () use ($imageService, $latestDamage) {
                 $imagePath = null;
                 if ($this->repairImage) {
                     $imagePath = $imageService->uploadRepairAssetImage(
@@ -108,9 +126,10 @@ class AssetRepair extends Component
                     );
                 }
 
-                // Simpan data perbaikan utama
+                // 3. Simpan data perbaikan utama + link ke asset_damage
                 $repair = AssetRepairModel::create([
                     'asset_id' => $this->repairAssetId,
+                    'asset_damage_id' => $latestDamage->id_asset_damage,
                     'repair_note' => $this->repairNotes,
                     'image_path' => $imagePath,
                     'started_at' => $this->out_of_service,
@@ -123,20 +142,20 @@ class AssetRepair extends Component
                 // Simpan detail komponen yang dipakai
                 foreach ($this->repairComponents as $item) {
                     $repair->components()->attach($item['component_id'], [
-                        'merk'       => $item['merk'],
-                        'qty'        => $item['qty'],
-                        'price'      => $item['harga'],
-                        'date'       => $item['dateInstal'] ?? null,
+                        'merk'          => $item['merk'],
+                        'qty'           => $item['qty'],
+                        'price'         => $item['harga'],
+                        'date'          => $item['dateInstal'] ?? null,
                         'technician_id' => $item['technician_id'] ?? null,
                         'vendor_id'     => $item['vendor_id'] ?? null,
-                        'subtotal'   =>  $item['harga'],
+                        'subtotal'      => $item['harga'],
                     ]);
                 }
 
-
-                // Update kondisi jika user mengisi completed_at langsung
-                Asset::where('id_asset', $this->repairAssetId)->update([
-                    'condition' => $repair->completed_at ? 'Baik' : 'Perbaikan',
+                // Update kondisi asset
+                $asset = Asset::where('id_asset', $this->repairAssetId);
+                $asset->update([
+                    'condition' => $this->in_of_service ? 'Baik' : 'Perbaikan',
                 ]);
 
                 // Catat audit log
@@ -145,10 +164,11 @@ class AssetRepair extends Component
                     'asset',
                     $this->asset,
                     [
-                        'asset_code'  => $this->asset->asset_code,
-                        'name'        => $this->asset->name,
-                        'repair_note' => $this->repairNotes,
-                        'components'  => $this->repairComponents,
+                        'asset_code'      => $this->asset->asset_code,
+                        'name'            => $this->asset->name,
+                        'repair_note'     => $this->repairNotes,
+                        'damage_linked'   => $latestDamage->id_asset_damage,
+                        'components'      => $this->repairComponents,
                     ]
                 );
             });

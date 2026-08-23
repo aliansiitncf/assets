@@ -3,6 +3,7 @@
 namespace App\Livewire\Asset;
 
 use App\Enums\AuditEvent;
+use App\Exports\AssetRepairExport;
 use App\Models\Asset;
 use App\Models\AssetRepair as AssetRepairModel;
 use App\Services\AuditService;
@@ -11,6 +12,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
+use Maatwebsite\Excel\Facades\Excel;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -110,6 +112,17 @@ class PageAssetRepair extends Component
         $filename = 'asset-repair-' . Carbon::now()->format('d-m-Y') . '.pdf';
         return response()->streamDownload(
             fn() => print($pdf->output()),
+            $filename
+        );
+    }
+
+    public function exportRepairExcel($assetId)
+    {
+        $asset = Asset::findOrFail($assetId);
+        $filename = 'repair-' . $asset->asset_code . '-' . now()->format('Y-m-d') . '.xlsx';
+
+        return Excel::download(
+            new AssetRepairExport($assetId),
             $filename
         );
     }

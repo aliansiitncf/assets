@@ -129,11 +129,19 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-center">
-                                <button type="button" wire:click="toggleAsset({{ $asset->id_asset }})"
-                                    class="inline-flex items-center text-sm font-medium {{ $selectedAssetId === $asset->id_asset ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600' }} transition-colors">
-                                    <i class="ti ti-tools mr-1.5 text-base"></i>
-                                    {{ $selectedAssetId === $asset->id_asset ? 'Tutup' : 'Lihat riwayat' }}
-                                </button>
+                                <div class="inline-flex items-center gap-3">
+                                    <button type="button" wire:click="toggleAsset({{ $asset->id_asset }})"
+                                        class="inline-flex items-center text-sm font-medium {{ $selectedAssetId === $asset->id_asset ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600' }} transition-colors">
+                                        <i class="ti ti-tools mr-1.5 text-base"></i>
+                                        {{ $selectedAssetId === $asset->id_asset ? 'Tutup' : 'Lihat riwayat' }}
+                                    </button>
+                                    <button type="button"
+                                        wire:click="exportRepairExcel({{ $asset->id_asset }})"
+                                        class="inline-flex items-center text-sm font-medium text-green-500 hover:text-green-700 transition-colors">
+                                        <i class="ti ti-file-spreadsheet mr-1.5 text-base"></i>
+                                        Excel
+                                    </button>
+                                </div>
                             </td>
                         </tr>
 
