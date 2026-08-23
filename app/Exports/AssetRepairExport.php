@@ -113,6 +113,11 @@ class AssetRepairExport implements FromView, WithEvents, ShouldAutoSize
                 // Format angka (Qty, Price)
                 $sheet->getStyle("H" . ($headerRow + 1) . ":I{$lastDataRow}")
                     ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                // Format kolom Price
+                $sheet->getStyle("I" . ($headerRow + 1) . ":I{$lastDataRow}")
+                    ->getNumberFormat()
+                    ->setFormatCode('#,##0');
             },
         ];
     }

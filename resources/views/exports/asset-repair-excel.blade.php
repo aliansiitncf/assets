@@ -91,7 +91,7 @@
                     <td>{{ $component->name_component }}</td>
                     <td>{{ $component->pivot->merk ?? '-' }}</td>
                     <td>{{ $component->pivot->qty }}</td>
-                    <td>{{ number_format($component->pivot->price, 0, ',', '.') }}</td>
+                    <td>{{ $component->pivot->price }}</td>
                     <td>{{ optional($component->pivot->vendor)->name ?? '-' }}</td>
                     <td>{{ optional($component->pivot->technician)->name ?? '-' }}</td>
 
