@@ -313,15 +313,15 @@
                                     <table class="table table-sm">
                                         <thead class="bg-base-200">
                                             <tr>
-                                                <th>Komponen</th>
-                                                <th>Merk</th>
-                                                <th>Toko</th>
-                                                <th class="text-center">Qty</th>
-                                                <th class="text-right">Harga</th>
-                                                <th class="text-right">Teknisi</th>
-                                                <th class="text-right">Tanggal</th>
-                                                <th class="text-right">Subtotal</th>
-                                                <th>Aksi</th>
+                                                <th class="w-36">Komponen</th>
+                                                <th class="w-28">Merk</th>
+                                                <th class="w-36">Toko</th>
+                                                <th class="w-16 text-center">Qty</th>
+                                                <th class="w-36">Harga</th>
+                                                <th class="w-36">Teknisi</th>
+                                                <th class="w-36">Tanggal</th>
+                                                <th class="w-32 text-right">Subtotal</th>
+                                                <th class="w-12">Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -343,9 +343,14 @@
                                                             class="input input-sm input-bordered w-full" />
                                                     </td>
                                                     <td>
-                                                        <input type="text"
-                                                            wire:model="repairComponents.{{ $index }}.vendor"
-                                                            class="input input-sm input-bordered w-full" />
+                                                        <select
+                                                            wire:model="repairComponents.{{ $index }}.vendor_id"
+                                                            class="select select-sm select-bordered w-full">
+                                                            <option value="">-- Toko --</option>
+                                                            @foreach ($vendors as $v)
+                                                                <option value="{{ $v->id }}">{{ $v->name }}</option>
+                                                            @endforeach
+                                                        </select>
                                                     </td>
                                                     <td>
                                                         <input type="number" min="1"
@@ -368,9 +373,14 @@
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <input type="text"
-                                                            wire:model="repairComponents.{{ $index }}.teknisi"
-                                                            class="input input-sm input-bordered w-full" />
+                                                        <select
+                                                            wire:model="repairComponents.{{ $index }}.technician_id"
+                                                            class="select select-sm select-bordered w-full">
+                                                            <option value="">-- Teknisi --</option>
+                                                            @foreach ($technicians as $t)
+                                                                <option value="{{ $t->id }}">{{ $t->name }}</option>
+                                                            @endforeach
+                                                        </select>
                                                     </td>
                                                     <td>
                                                         <input type="date"
