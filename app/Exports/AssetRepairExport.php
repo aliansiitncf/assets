@@ -28,9 +28,7 @@ class AssetRepairExport implements FromView, WithEvents, ShouldAutoSize
         $this->repairs = AssetRepair::where('asset_id', $assetId)
             ->with([
                 'damage',
-                'components' => function ($query) {
-                    $query->withPivot('merk', 'date', 'vendor_id', 'technician_id', 'qty', 'price', 'subtotal');
-                },
+                'components',
             ])
             ->orderBy('started_at', 'desc')
             ->get();
@@ -61,8 +59,9 @@ class AssetRepairExport implements FromView, WithEvents, ShouldAutoSize
                 $sheet->getStyle('A1:B3')->getFont()->setBold(true);
                 $sheet->getStyle('A1:B3')->getFont()->setSize(11);
 
-                // Hitung row awal tabel (row 5 = header tabel)
-                $headerRow = 5;
+                // 2 baris info (Kode + Nama) + 1 baris detail (jika ada) + 1 baris separator
+                $detailRows = $this->asset->details->count() > 0 ? 1 : 0;
+                $headerRow = 2 + $detailRows + 1 + 1;
                 $lastCol = 'M';
 
                 // Style header tabel
