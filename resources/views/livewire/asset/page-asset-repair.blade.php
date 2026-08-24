@@ -84,10 +84,10 @@
                 <i class="ti ti-info-circle mr-1"></i> Filter aktif akan mempengaruhi data yang ditampilkan
             </span>
             <button
-                class="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-600 rounded-md text-sm font-medium hover:bg-blue-100 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                class="inline-flex items-center px-4 py-2 bg-red-50 text-red-600 rounded-md text-sm font-medium hover:bg-red-100 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors"
                 wire:click="openModalPDF">
                 <span class="flex flex-row items-center"><x-heroicon-o-arrow-down-tray class="w-4 h-4 mr-2" />Unduh
-                    PDF</span>
+                    Data Repair (PDF)</span>
             </button>
         </div>
     </div>
@@ -129,11 +129,17 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-center">
-                                <button type="button" wire:click="toggleAsset({{ $asset->id_asset }})"
-                                    class="inline-flex items-center text-sm font-medium {{ $selectedAssetId === $asset->id_asset ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600' }} transition-colors">
-                                    <i class="ti ti-tools mr-1.5 text-base"></i>
-                                    {{ $selectedAssetId === $asset->id_asset ? 'Tutup' : 'Lihat riwayat' }}
-                                </button>
+                                <div class="flex flex-row items-center gap-3">
+                                    <button type="button" wire:click="toggleAsset({{ $asset->id_asset }})"
+                                        class="inline-flex items-center text-sm font-medium {{ $selectedAssetId === $asset->id_asset ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600' }} transition-colors">
+                                        <i class="ti ti-tools mr-1.5 text-base"></i>
+                                        {{ $selectedAssetId === $asset->id_asset ? 'Tutup' : 'Lihat riwayat' }}
+                                    </button>
+                                    <button type="button" wire:click="exportRepairExcel({{ $asset->id_asset }})"
+                                        class="btn btn-success btn-sm">
+                                        Unduh Riwayat
+                                    </button>
+                                </div>
                             </td>
                         </tr>
 
@@ -144,7 +150,10 @@
                                         <div
                                             class="flex items-center gap-2 text-xs font-medium text-gray-400 uppercase tracking-wider">
                                             <i class="ti ti-list-details"></i>
-                                            <span>Riwayat perbaikan</span>
+                                            <span>Riwayat perbaikan </span> <span
+                                                class="font-semibold text-gray-700">{{ $asset->asset_code }} -
+                                                {{ $asset->name }}</span>
+                                            <div class="flex-1 h-px bg-gray-200"></div>
                                             <span
                                                 class="ml-auto bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full text-xs">
                                                 {{ $assetRepairsForSelected->count() }}
@@ -153,58 +162,123 @@
 
                                         @forelse ($assetRepairsForSelected as $assetRepair)
                                             <div
-                                                class="bg-white rounded border border-gray-100 p-3 flex flex-col sm:flex-row gap-4 hover:shadow-sm transition-shadow">
-                                                @if ($assetRepair->image_path)
-                                                    <img src="{{ Storage::url($assetRepair->image_path) }}"
-                                                        alt="Foto perbaikan"
-                                                        class="w-16 h-16 object-cover rounded border border-gray-100 flex-shrink-0" />
-                                                @else
-                                                    <div
-                                                        class="w-16 h-16 flex items-center justify-center bg-gray-50 rounded border border-gray-100 text-gray-300 flex-shrink-0">
-                                                        <i class="ti ti-photo text-2xl"></i>
-                                                    </div>
-                                                @endif
+                                                class="bg-white rounded border border-gray-100 p-4 hover:shadow-sm transition-shadow">
 
                                                 <div
-                                                    class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                                                    <div>
-                                                        <span class="font-medium text-gray-700">Keluar:</span>
-                                                        <span
-                                                            class="text-gray-600">{{ $assetRepair->started_at ? \Carbon\Carbon::parse($assetRepair->started_at)->translatedFormat('d F Y') : '-' }}</span>
-                                                    </div>
-                                                    <div>
-                                                        <span class="font-medium text-gray-700">Selesai:</span>
-                                                        <span
-                                                            class="text-gray-600">{{ $assetRepair->completed_at ? \Carbon\Carbon::parse($assetRepair->completed_at)->translatedFormat('d F Y') : '-' }}</span>
-                                                    </div>
-                                                    <div>
-                                                        <span class="font-medium text-gray-700">Status:</span>
-                                                        <span
-                                                            class="ml-1.5 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $assetRepair->status === 'In Progress' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700' }}">
-                                                            {{ $assetRepair->status === 'In Progress' ? 'Sedang diperbaiki' : 'Selesai' }}
-                                                        </span>
-                                                    </div>
-                                                    <div>
-                                                        <span class="font-medium text-gray-700">Catatan:</span>
-                                                        <span
-                                                            class="text-gray-600">{{ $assetRepair->repair_note }}</span>
-                                                    </div>
-                                                </div>
+                                                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_2fr_auto] gap-5 text-sm">
 
-                                                <div class="flex sm:flex-col items-center gap-2 flex-shrink-0">
-                                                    <a href="{{ route('asset.repair.edit', $assetRepair->id_asset_repair) }}"
-                                                        wire:navigate
-                                                        class="inline-flex items-center px-3 py-1.5 bg-green-50 text-green-600 rounded text-xs font-medium hover:bg-green-100 transition-colors">
-                                                        <i class="ti ti-edit mr-1 text-sm"></i> Edit
-                                                    </a>
-                                                    <button type="button"
-                                                        wire:click="showDetail({{ $assetRepair->id_asset_repair }})"
-                                                        class="inline-flex items-center px-3 py-1.5 bg-gray-50 text-gray-600 rounded text-xs font-medium hover:bg-gray-100 transition-colors">
-                                                        <i class="ti ti-eye mr-1 text-sm"></i> Detail
-                                                    </button>
+                                                    {{-- Kolom 1: Out / In Service --}}
+                                                    <div class="space-y-3">
+                                                        <div>
+                                                            <span
+                                                                class="block text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
+                                                                Out of Service
+                                                            </span>
+
+                                                            <span class="text-gray-700">
+                                                                {{ $assetRepair->started_at ? \Carbon\Carbon::parse($assetRepair->started_at)->translatedFormat('d F Y') : '-' }}
+                                                            </span>
+                                                        </div>
+
+                                                        <div>
+                                                            <span
+                                                                class="block text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
+                                                                In of Service
+                                                            </span>
+
+                                                            <span class="text-gray-700">
+                                                                {{ $assetRepair->completed_at
+                                                                    ? \Carbon\Carbon::parse($assetRepair->completed_at)->translatedFormat('d F Y')
+                                                                    : '-' }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+
+                                                    {{-- Kolom 2: Status & Total --}}
+                                                    <div class="space-y-3">
+                                                        <div>
+                                                            <span
+                                                                class="block text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
+                                                                Status
+                                                            </span>
+
+                                                            <span
+                                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+                        {{ $assetRepair->status === 'In Progress' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700' }}">
+                                                                {{ $assetRepair->status === 'In Progress' ? 'Sedang diperbaiki' : 'Selesai' }}
+                                                            </span>
+                                                        </div>
+
+                                                        {{-- Hitung Total --}}
+                                                        @php
+                                                            $grandTotal = 0;
+
+                                                            foreach ($assetRepair->components as $component) {
+                                                                $subtotal =
+                                                                    $component->pivot->subtotal ??
+                                                                    ($component->pivot->qty ?? 0) *
+                                                                        ($component->pivot->price ?? 0);
+
+                                                                $grandTotal += $subtotal;
+                                                            }
+                                                        @endphp
+
+                                                        <div>
+                                                            <span
+                                                                class="block text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
+                                                                Total Biaya
+                                                            </span>
+
+                                                            <span class="font-semibold text-gray-800">
+                                                                Rp {{ number_format($grandTotal, 0, ',', '.') }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+
+                                                    {{-- Kolom 3: Catatan Perbaikan --}}
+                                                    <div class="min-w-0">
+                                                        <span
+                                                            class="block text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
+                                                            Catatan Perbaikan
+                                                        </span>
+
+                                                        <p class="text-gray-600 leading-relaxed break-words">
+                                                            {{ $assetRepair->repair_note ?: '-' }}
+                                                        </p>
+                                                    </div>
+
+
+                                                    {{-- Kolom 4: Action --}}
+                                                    <div
+                                                        class="flex flex-row lg:flex-col items-start lg:items-center justify-start gap-2">
+
+                                                        <a href="{{ route('asset.repair.edit', $assetRepair->id_asset_repair) }}"
+                                                            wire:navigate
+                                                            class="inline-flex items-center justify-center px-3 py-1.5
+                           bg-green-50 text-green-600 rounded text-xs font-medium
+                           hover:bg-green-100 transition-colors whitespace-nowrap">
+                                                            <i class="ti ti-edit mr-1 text-sm"></i>
+                                                            Edit
+                                                        </a>
+
+                                                        <button type="button"
+                                                            wire:click="showDetail({{ $assetRepair->id_asset_repair }})"
+                                                            class="inline-flex items-center justify-center px-3 py-1.5
+                           bg-gray-50 text-gray-600 rounded text-xs font-medium
+                           hover:bg-gray-100 transition-colors whitespace-nowrap">
+                                                            <i class="ti ti-eye mr-1 text-sm"></i>
+                                                            Detail
+                                                        </button>
+
+                                                    </div>
+
                                                 </div>
                                             </div>
+
                                         @empty
+
                                             <div class="text-center py-6 text-sm text-gray-400">
                                                 <i class="ti ti-inbox text-2xl block mb-1.5"></i>
                                                 <span>Belum ada riwayat perbaikan</span>

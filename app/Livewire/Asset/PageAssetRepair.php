@@ -3,8 +3,11 @@
 namespace App\Livewire\Asset;
 
 use App\Enums\AuditEvent;
+use App\Exports\AssetRepairExport;
 use App\Models\Asset;
 use App\Models\AssetRepair as AssetRepairModel;
+use App\Models\Category;
+use App\Models\Location;
 use App\Services\AuditService;
 use App\Traits\HasAuthorization;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -14,40 +17,49 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 #[Title('Asset Repair')]
 #[Layout('components.layouts.app')]
 class PageAssetRepair extends Component
 {
     use HasAuthorization, WithPagination;
+
     public $search = '';
+
     public $perPage = 10;
+
     public $showModalPDF = false;
 
     public $selectedAssetId = null;
+
     public $assetRepairsForSelected = [];
 
     // Props untuk filter tanggal
     public $startDate;
+
     public $endDate;
 
     // Props untuk filter kategori
     public $categoryFilter = '';
+
     public $categories = [];
 
     // props detail modal repair
     public $isDetailOpen = false;
+
     public $selectedRepair = null;
 
     // props filter location
     public $locationFilter = '';
+
     public $locations = [];
 
     public function mount()
     {
         $this->requirePermission('lihat aset perbaikan');
-        $this->locations = \App\Models\Location::all();
-        $this->categories = \App\Models\Category::orderBy('name')->get();
+        $this->locations = Location::all();
+        $this->categories = Category::orderBy('name')->get();
     }
 
     public function completeRepair($repairId)
@@ -70,7 +82,7 @@ class PageAssetRepair extends Component
             [
                 'asset_code' => $assetRepair->asset->asset_code,
                 'name' => $assetRepair->asset->name,
-                'completed_at' => $assetRepair->completed_at->format('d M Y H:i')
+                'completed_at' => $assetRepair->completed_at->format('d M Y H:i'),
             ]
         );
     }
@@ -85,7 +97,7 @@ class PageAssetRepair extends Component
         $this->reset([
             'showModalPDF',
             'startDate',
-            'endDate'
+            'endDate',
         ]);
     }
 
@@ -101,15 +113,27 @@ class PageAssetRepair extends Component
         $pdf = Pdf::loadView('exports.asset-repair-export', [
             'assetRepairs' => $assetRepairs,
             'startDate' => $this->startDate,
-            'endDate' => $this->endDate
+            'endDate' => $this->endDate,
         ]);
         $this->reset([
             'startDate',
-            'endDate'
+            'endDate',
         ]);
         $filename = 'asset-repair-' . Carbon::now()->format('d-m-Y') . '.pdf';
+
         return response()->streamDownload(
             fn() => print($pdf->output()),
+            $filename
+        );
+    }
+
+    public function exportRepairExcel($assetId)
+    {
+        $asset = Asset::findOrFail($assetId);
+        $filename = 'repair-' . $asset->asset_code . '-' . now()->format('Y-m-d') . '.xlsx';
+
+        return Excel::download(
+            new AssetRepairExport($assetId),
             $filename
         );
     }
@@ -142,7 +166,6 @@ class PageAssetRepair extends Component
             ->with(['latestLocation.location', 'category'])
             ->paginate($this->perPage);
 
-
         return view('livewire.asset.page-asset-repair', compact('assets'));
     }
 
@@ -151,6 +174,7 @@ class PageAssetRepair extends Component
         if ($this->selectedAssetId === $assetId) {
             $this->selectedAssetId = null;
             $this->assetRepairsForSelected = [];
+
             return;
         }
 
@@ -178,7 +202,7 @@ class PageAssetRepair extends Component
         $this->selectedRepair = null;
     }
 
-    //filter
+    // filter
 
     public function updatedSearch()
     {
@@ -221,7 +245,6 @@ class PageAssetRepair extends Component
         $this->dispatch('charts-updated');
     }
 
-
     // Grafik
     public function getPoinChartDataProperty()
     {
@@ -240,7 +263,7 @@ class PageAssetRepair extends Component
         $data = $query->orderByDesc('total_poin')->limit(10)->get();
 
         return [
-            'labels' =>  $data->map(fn($item) => $item->asset?->name . ' (' . $item->asset?->asset_code . ')'),
+            'labels' => $data->map(fn($item) => $item->asset?->name . ' (' . $item->asset?->asset_code . ')'),
             'values' => $data->pluck('total_poin'),
         ];
     }

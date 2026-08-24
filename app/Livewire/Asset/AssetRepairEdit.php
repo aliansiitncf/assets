@@ -7,6 +7,7 @@ use App\Models\Asset;
 use App\Models\AssetComponent;
 use App\Models\AssetRepair as AssetRepairModel;
 use App\Models\Component as ComponentModel;
+use App\Models\Vendor;
 use App\Services\AuditService;
 use App\Services\ImageService;
 use Illuminate\Support\Facades\DB;
@@ -31,8 +32,8 @@ class AssetRepairEdit extends Component
     public $selectedComponent = '';
     public $merk = '';
     public $dateInstal = '';
-    public $toko = '';
-    public $technician = '';
+    public $vendor_id = null;
+    public $technician_id = null;
     public $qty = 1;
     public $harga = 0;
     public $repairNotes = '';
@@ -46,6 +47,9 @@ class AssetRepairEdit extends Component
     public $name_component = '';
     public $componentId = null;
 
+    public $vendors = [];
+    public $technicians = [];
+
     public function mount(AssetRepairModel $assetRepair)
     {
         // Muat data perbaikan beserta relasi komponennya
@@ -57,6 +61,10 @@ class AssetRepairEdit extends Component
         $this->name = $this->asset->name;
         $this->components = $this->asset->components;
 
+        // select vendor & teknisi
+        $this->vendors = Vendor::where('is_supplier', true)->orderBy('name')->get();
+        $this->technicians = Vendor::where('is_service', true)->orderBy('name')->get();
+
         // Prefill form utama dari data yang sudah ada
         $this->repairNotes = $this->repair->repair_note;
         $this->existingImagePath = $this->repair->image_path;
@@ -67,6 +75,7 @@ class AssetRepairEdit extends Component
 
         // Prefill daftar komponen dari pivot table
         $this->repairComponents = $this->repair->components->map(function ($component) {
+            $component->pivot->load('vendor', 'technician');
             return [
                 'component_id'   => $component->id_component,
                 'name_component' => $component->name_component,
@@ -74,8 +83,10 @@ class AssetRepairEdit extends Component
                 'qty'            => $component->pivot->qty,
                 'harga'          => $component->pivot->price,
                 'dateInstal'     => $component->pivot->date,
-                'technician'     => $component->pivot->technician,
-                'store'          => $component->pivot->store,
+                'technician_id'  => $component->pivot->technician_id,
+                'vendor_id'      => $component->pivot->vendor_id,
+                'teknisi'        => optional($component->pivot->technician)->name,
+                'vendor'         => optional($component->pivot->vendor)->name,
             ];
         })->toArray();
     }
@@ -90,7 +101,7 @@ class AssetRepairEdit extends Component
         $this->validate([
             'repairNotes' => 'required|string',
             'out_of_service' => 'required|date',
-            'in_of_service' => 'nullable|date',
+            'in_of_service' => 'nullable|date|after_or_equal:out_of_service',
             'poin' => 'required|integer|min:0',
             'hmkm' => 'required|numeric|min:0',
             'repairImage' => 'nullable|image|max:2048',
@@ -101,11 +112,12 @@ class AssetRepairEdit extends Component
             'repairComponents.*.qty' => 'required|integer|min:1',
             'repairComponents.*.harga' => 'required|numeric|min:0',
             'repairComponents.*.dateInstal' => 'nullable|date',
-            'repairComponents.*.technician' => 'nullable|string|min:1',
-            'repairComponents.*.store' => 'nullable|string',
+            'repairComponents.*.technician_id' => 'nullable|exists:vendors,id',
+            'repairComponents.*.vendor_id' => 'nullable|exists:vendors,id',
         ], [
             'repairComponents.required' => 'Tambahkan minimal satu komponen perbaikan.',
             'repairComponents.min' => 'Tambahkan minimal satu komponen perbaikan.',
+            'in_of_service.after_or_equal' => 'Tanggal selesai harus sama atau setelah tanggal keluar.',
         ]);
 
         try {
@@ -138,16 +150,16 @@ class AssetRepairEdit extends Component
                     ->get()
                     ->mapWithKeys(fn($c) => [
                         $c->id_component => [
-                            'merk'       => $c->pivot->merk,
-                            'qty'        => (int) $c->pivot->qty,
-                            'price'      =>
+                            'merk'           => $c->pivot->merk,
+                            'qty'            => (int) $c->pivot->qty,
+                            'price'          =>
                             (float) $c->pivot->price == (int) $c->pivot->price
                                 ? (int) $c->pivot->price
                                 : (float) $c->pivot->price,
-                            'date'       => $c->pivot->date,
-                            'technician' => $c->pivot->technician,
-                            'store'      => $c->pivot->store,
-                            'subtotal'   =>
+                            'date'           => $c->pivot->date,
+                            'technician_id'  => $c->pivot->technician_id,
+                            'vendor_id'      => $c->pivot->vendor_id,
+                            'subtotal'       =>
                             (float) $c->pivot->subtotal == (int) $c->pivot->subtotal
                                 ? (int) $c->pivot->subtotal
                                 : (float) $c->pivot->subtotal,
@@ -187,13 +199,13 @@ class AssetRepairEdit extends Component
                 $syncData = [];
                 foreach ($this->repairComponents as $item) {
                     $syncData[$item['component_id']] = [
-                        'merk'       => $item['merk'],
-                        'qty'        => $item['qty'],
-                        'price'      => $item['harga'],
-                        'date'       => $item['dateInstal'] ?? null,
-                        'technician' => $item['technician'] ?? null,
-                        'store'      => $item['store'] ?? null,
-                        'subtotal'   => $item['subtotal'] ?? ($item['qty'] * $item['harga']),
+                        'merk'           => $item['merk'],
+                        'qty'            => $item['qty'],
+                        'price'          => $item['harga'],
+                        'date'           => $item['dateInstal'] ?? null,
+                        'technician_id'  => $item['technician_id'] ?? null,
+                        'vendor_id'      => $item['vendor_id'] ?? null,
+                        'subtotal'       => $item['subtotal'] ?? ($item['qty'] * $item['harga']),
                     ];
                 }
                 $syncResult = $this->repair->components()->sync($syncData);
@@ -316,11 +328,12 @@ class AssetRepairEdit extends Component
     {
         $this->validate([
             'selectedComponent' => 'required|exists:components,id_component',
-            'merk' => 'required|string|min:1',
+            'merk' => 'nullable|string|min:1',
             'qty' => 'required|integer|min:1',
             'harga' => 'required|integer|min:0',
             'dateInstal' => 'nullable|date',
-            'technician' => 'nullable|string|min:1',
+            'technician_id' => 'nullable|exists:vendors,id',
+            'vendor_id' => 'nullable|exists:vendors,id',
         ]);
 
         $component = ComponentModel::find($this->selectedComponent);
@@ -333,11 +346,13 @@ class AssetRepairEdit extends Component
                 'qty'            => $this->qty,
                 'harga'          => $this->harga,
                 'dateInstal'     => $this->dateInstal,
-                'technician'     => $this->technician,
-                'store'           => $this->toko,
+                'technician_id'  => $this->technician_id,
+                'vendor_id'      => $this->vendor_id,
+                'teknisi'        => Vendor::find($this->technician_id)?->name ?? null,
+                'vendor'         => Vendor::find($this->vendor_id)?->name ?? null,
             ];
 
-            $this->reset(['selectedComponent', 'merk', 'qty', 'harga', 'dateInstal', 'technician', 'toko']);
+            $this->reset(['selectedComponent', 'merk', 'qty', 'harga', 'dateInstal', 'technician_id', 'vendor_id']);
         }
     }
 
@@ -360,13 +375,13 @@ class AssetRepairEdit extends Component
     private function normalizeComponent(array $component): array
     {
         return [
-            'merk'       => $component['merk'] ?? null,
-            'qty'        => (int) ($component['qty'] ?? 0),
-            'price'      => (int) ($component['price'] ?? 0),
-            'date'       => $component['date'] ?? '',
-            'technician' => $component['technician'] ?? '',
-            'store'      => $component['store'] ?? null,
-            'subtotal'   => (int) ($component['subtotal'] ?? 0),
+            'merk'           => $component['merk'] ?? null,
+            'qty'            => (int) ($component['qty'] ?? 0),
+            'price'          => (int) ($component['price'] ?? 0),
+            'date'           => $component['date'] ?? '',
+            'technician_id'  => $component['technician_id'] ?? null,
+            'vendor_id'      => $component['vendor_id'] ?? null,
+            'subtotal'       => (int) ($component['subtotal'] ?? 0),
         ];
     }
 }
