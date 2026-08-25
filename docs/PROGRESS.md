@@ -9,7 +9,7 @@
 - [ ] Phase 4: Refactor bertahap per modul ikuti pola standar (tanpa ubah behavior).
   - [ ] Asset Module
   - [x] Category Module
-  - [ ] Component Module
+  - [x] Component Module
   - [x] Location Module
   - [ ] Technician Module
   - [ ] Vendor Module

@@ -432,6 +432,6 @@
 
         @include('livewire.components.modal-component')
         @livewire('components.ModalTechnician')
-        @livewire('components.ModalVendor')
+        @livewire('components.vendor-modal')
     </div>
 </div>

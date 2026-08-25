@@ -12,7 +12,7 @@ use Spatie\Activitylog\Models\Activity;
 // OpenVendorModal(jenis) => dipanggil dari asset-repair.blade.php 
 
 #[Layout('components.layouts.app')]
-class ModalVendor extends Component
+class VendorModal extends Component
 {
     public $vendorId = null;
     public $name, $phone, $address;
@@ -141,6 +141,6 @@ class ModalVendor extends Component
 
     public function render()
     {
-        return view('livewire.components.modal-vendor');
+        return view('livewire.components.vendor-modal');
     }
 }
