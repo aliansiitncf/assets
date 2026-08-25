@@ -93,7 +93,11 @@ class LocationPage extends Component
             ['id_location' => $this->locationId],
             ['name' => $this->name]
         );
-        session()->flash('message', $this->locationId ? 'Location updated successfully.' : 'Location created successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: $this->locationId ? 'Location updated successfully.' : 'Location created successfully.',
+            icon: 'success'
+        );
         if ($this->modalMode === 'edit' && $oldLocation) {
             $auditData = [
                 'name' => [
@@ -141,7 +145,11 @@ class LocationPage extends Component
                 'name' => $location->name,
             ]
         );
-        session()->flash('message', 'Location deleted successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: 'Location deleted successfully.',
+            icon: 'success'
+        );
         $this->resetPageIfEmpty();
     }
 
