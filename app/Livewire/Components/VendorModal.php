@@ -6,6 +6,7 @@ use App\Enums\AuditEvent;
 use App\Models\Vendor as VendorModel;
 use App\Services\AuditService;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Spatie\Activitylog\Models\Activity;
 
@@ -22,11 +23,6 @@ class VendorModal extends Component
 
     public $isOpen = false;
 
-    protected $listeners = [
-        'openVendorModal' => 'openModal',
-        'editVendorModal' => 'editModal',
-    ];
-
     public function resetInputFields()
     {
         $this->name = '';
@@ -37,6 +33,7 @@ class VendorModal extends Component
         $this->vendorId = null;
     }
 
+    #[On('openVendorModal')]
     public function openModal($jenis = null)
     {
         $this->resetInputFields();
@@ -45,6 +42,7 @@ class VendorModal extends Component
         $this->isOpen = true;
     }
 
+    #[On('editVendorModal')]
     public function editModal($id)
     {
         $vendor = VendorModel::findOrFail($id);

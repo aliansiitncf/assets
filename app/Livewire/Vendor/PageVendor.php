@@ -158,6 +158,11 @@ class PageVendor extends Component
 
     // --------------------------------------------
 
+    #[On('vendor-saved')]
+    public function refreshList()
+    {
+    }
+
     public function store()
     {
         $this->validate([

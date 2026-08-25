@@ -11,7 +11,7 @@
   - [x] Category Module
   - [x] Component Module
   - [x] Location Module
-  - [ ] Technician Module
+  - [x] Technician Module
   - [ ] Vendor Module
   - [ ] User/Role/Permission Module
   - [ ] Audit Log Module
