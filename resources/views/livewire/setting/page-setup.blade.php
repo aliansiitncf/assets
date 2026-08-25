@@ -77,7 +77,7 @@
                 </ul>
             </div>
             @endif
-            <form wire:submit.prevent="save" method="POST"
+            <form wire:submit="save" method="POST"
                 class="space-y-3">
                 @csrf
                 <input type="text" placeholder="Size Name" wire:model="size_name" class="input input-bordered w-full" />

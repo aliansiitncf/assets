@@ -12,7 +12,7 @@
     @endif
 
     <div class="card bg-base-100 shadow-xl p-6">
-        <form wire:submit.prevent="store">
+        <form wire:submit="store">
             <div class="tabs tabs-lift shadow-md rounded-2xl mt-3">
 
                 {{-- Tab 1: Repair Info --}}

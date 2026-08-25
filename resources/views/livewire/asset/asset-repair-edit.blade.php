@@ -11,14 +11,9 @@
         </div>
     @endif
 
-    @if (session()->has('message'))
-        <div role="alert" class="alert alert-success alert-soft mt-2 mb-4">
-            <span>{{ session('message') }}</span>
-        </div>
-    @endif
 
     <div class="card bg-base-100 shadow-xl p-6">
-        <form wire:submit.prevent="update">
+        <form wire:submit="update">
             <div class="tabs tabs-lift shadow-md rounded-2xl mt-3">
 
                 {{-- Tab 1: Repair Info --}}

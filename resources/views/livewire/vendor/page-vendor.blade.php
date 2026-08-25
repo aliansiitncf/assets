@@ -151,7 +151,7 @@
         <div class="modal modal-open">
             <div class="modal-box">
                 <h3 class="font-bold text-lg mb-4">Download Data Vendor</h3>
-                <form wire:submit.prevent="exportVendor">
+                <form wire:submit="exportVendor">
                     <div class="form-control mb-4">
                         <label class="label">Tanggal Mulai <span class="text-xs text-gray-400">(opsional)</span></label>
                         <input type="date" wire:model.defer="exportStartDate" class="input input-bordered w-full" />

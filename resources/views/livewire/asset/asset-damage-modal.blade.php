@@ -2,7 +2,7 @@
     <div class="modal modal-open">
         <div class="modal-box">
             <h3 class="font-bold text-lg">Maintenance</h3>
-            <form wire:submit.prevent="saveDamage">
+            <form wire:submit="saveDamage">
                 <div class="py-4">
                     <label for="damageNotes" class="block mb-2">Notes:</label>
                     <textarea id="damageNotes" wire:model.live="damageNotes" class="textarea textarea-bordered w-full"></textarea>
