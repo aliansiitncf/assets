@@ -257,5 +257,5 @@
 
         </div>
     </form>
-    @livewire('components.ModalComponent')
+    @livewire('components.component-modal')
 </div>

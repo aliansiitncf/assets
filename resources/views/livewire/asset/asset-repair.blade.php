@@ -430,8 +430,7 @@
             </div>
         </form>
 
-        @include('livewire.components.modal-component')
-        @livewire('components.ModalTechnician')
+        @livewire('components.component-modal')
         @livewire('components.vendor-modal')
     </div>
 </div>

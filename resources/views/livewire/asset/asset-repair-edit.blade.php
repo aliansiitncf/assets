@@ -411,6 +411,6 @@
             </div>
         </form>
 
-        @include('livewire.components.modal-component')
+        @livewire('components.component-modal')
     </div>
 </div>

@@ -260,5 +260,5 @@
             <a href="{{ route('assets') }}" type="button" class="btn btn-error">cancel</a>
         </div>
     </form>
-    @livewire('components.ModalComponent')
+    @livewire('components.component-modal')
 </div>
