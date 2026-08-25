@@ -250,7 +250,7 @@ class AssetRepair extends Component
                 'vendor' => VendorModel::find($this->vendor_id)?->name ?? null,
                 'technician_id' => $this->technician_id,
                 'vendor_id' => $this->vendor_id,
-        
+            ];
 
             // reset form
             $this->reset(['selectedComponent', 'merk', 'qty', 'harga', 'dateInstal', 'technician_id', 'vendor_id']);
