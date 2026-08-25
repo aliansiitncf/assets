@@ -29,28 +29,28 @@
             </thead>
             <tbody>
                 @forelse($components as $component)
-                <tr>
-                    <td>{{ $component->name_component }}</td>
-                    <td>
-                        <button wire:click="$dispatch('editComponentModal', {id: {{ $component->id_component }}})"
-                            class="btn btn-sm btn-warning">Edit</button>
-                        <button wire:click="delete({{ $component->id_component }})" onclick="confirm('Are you sure?')"
-                            class="btn btn-sm btn-error">Delete</button>
-                    </td>
-                </tr>
+                    <tr>
+                        <td>{{ $component->name_component }}</td>
+                        <td>
+                            <button wire:click="$dispatch('editComponentModal', {id: {{ $component->id_component }}})"
+                                class="btn btn-sm btn-warning">Edit</button>
+                            <button wire:click="delete({{ $component->id_component }})"
+                                onclick="confirm('Are you sure?')" class="btn btn-sm btn-error">Delete</button>
+                        </td>
+                    </tr>
                 @empty
-                <tr>
-                    <td colspan="9" class="text-center text-gray-500">
-                        No component found
-                    </td>
-                </tr>
+                    <tr>
+                        <td colspan="9" class="text-center text-gray-500">
+                            No component found
+                        </td>
+                    </tr>
                 @endforelse
             </tbody>
         </table>
         <div class="mt-4 p-3">
-            {{ $components->links() }}
+            {{ $components->links('vendor.pagination.custom') }}
         </div>
 
     </div>
-@livewire('components.component-modal')
+    @livewire('components.component-modal')
 </div>
