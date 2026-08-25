@@ -95,7 +95,11 @@ class PageCategory extends Component
             ['id_category' => $this->categoryId],
             ['name' => $this->name]
         );
-        session()->flash('message', $this->categoryId ? 'Category updated successfully.' : 'Category created successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: $this->categoryId ? 'Category updated successfully.' : 'Category created successfully.',
+            icon: 'success'
+        );
 
         if ($this->modalMode === 'edit' && $oldCategory) {
             $auditData = [
@@ -147,7 +151,11 @@ class PageCategory extends Component
                 'name' => $category->name,
             ]
         );
-        session()->flash('message', 'Category deleted successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: 'Category deleted successfully.',
+            icon: 'success'
+        );
         $this->resetPageIfEmpty();
     }
 
