@@ -19,7 +19,7 @@ use Livewire\Component;
 // technician-saved => dipanggil dari ModalVendor.php
 // vendor-saved => dipanggil dari ModalVendor.php
 
-#[Title('Components')]
+#[Title('Asset Repair')]
 #[Layout('components.layouts.app')]
 class AssetRepair extends Component
 {

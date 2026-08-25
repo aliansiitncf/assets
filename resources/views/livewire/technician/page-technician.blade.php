@@ -14,7 +14,7 @@
     <h1 class="text-2xl font-bold">Teknisi Management</h1>
     <div class="flex justify-between items-center mb-4">
         <div class="my-4 flex gap-2 items-center">
-            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search Categories..."
+            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search Technicians..."
                 class="input input-bordered w-full" />
             <select wire:model.live="perPage" class="select select-bordered w-36">
                 <option value="5">5 / page</option>

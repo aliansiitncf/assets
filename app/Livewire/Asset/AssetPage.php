@@ -68,7 +68,7 @@ class AssetPage extends Component
     public $showModalPDF = false;
     public $showModalDetailAset = false;
     public $selectedAsset = null;
-    protected $listeners = ['assetUpdated' => 'refreshAsset', 'closeDetailModal' => 'closeDetail'];
+    protected $listeners = ['closeDetailModal' => 'closeDetail'];
 
     public $lastMerks  = [];
 

@@ -236,7 +236,7 @@ class PageVendor extends Component
     }
 
 
-    // edit category
+    // edit vendor
     public function edit($id)
     {
         $vendor = Vendor::findOrFail($id);
@@ -251,7 +251,7 @@ class PageVendor extends Component
 
     public function delete($id)
     {
-        $this->requirePermission('hapus kategori');
+        $this->requirePermission('hapus vendor');
         $vendor = Vendor::find($id);
         $vendor->delete();
         $this->resetPageIfEmpty();

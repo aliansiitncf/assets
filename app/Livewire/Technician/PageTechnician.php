@@ -135,7 +135,7 @@ class PageTechnician extends Component
     }
 
 
-    // edit category
+    // edit technician
     public function edit($id)
     {
         $technician = Technician::findOrFail($id);
@@ -147,7 +147,7 @@ class PageTechnician extends Component
 
     public function delete($id)
     {
-        $this->requirePermission('hapus kategori');
+        $this->requirePermission('hapus teknisi');
         $technician = technician::find($id);
         $technician->delete();
         $this->resetPageIfEmpty();
