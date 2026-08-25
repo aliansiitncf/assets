@@ -110,7 +110,11 @@ class Index extends Component
         $roleName = Role::findOrFail($this->role_id)->name;
         $user->assignRole($roleName);
 
-        session()->flash('message', 'User created successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: 'User created successfully.',
+            icon: 'success'
+        );
         $this->resetInputFields();
         $this->closeModal();
     }
@@ -144,7 +148,11 @@ class Index extends Component
             $roleName = Role::findOrFail($this->role_id)->name;
             $user->syncRoles($roleName);
         }
-        session()->flash('message', 'User updated successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: 'User updated successfully.',
+            icon: 'success'
+        );
         $this->resetInputFields();
         $this->closeModal();
     }
@@ -152,7 +160,11 @@ class Index extends Component
     public function delete($id)
     {
         User::find($id)->delete();
-        session()->flash('message', 'User deleted successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: 'User deleted successfully.',
+            icon: 'success'
+        );
         $this->resetPageIfEmpty();
     }
 
