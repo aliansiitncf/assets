@@ -14,7 +14,6 @@ class ModalComponent extends Component
     public $componentId = null;
     public $name_component;
     public $isOpen = false;
-    public $message, $messageType = 'success';
 
     protected $listeners = [
         'openComponentModal',
@@ -24,7 +23,6 @@ class ModalComponent extends Component
     {
         $this->name_component = '';
         $this->componentId = null;
-        $this->message = null;
     }
     public function openComponentModal()
     {
@@ -38,7 +36,6 @@ class ModalComponent extends Component
         $this->componentId = $id;
         $this->name_component = $component->name_component;
 
-        $this->message = null;
         $this->isOpen = true;
     }
 

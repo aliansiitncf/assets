@@ -19,7 +19,6 @@ class LocationPage extends Component
     public $showModal = false;
     public $modalMode = 'create'; // 'create' or 'edit'
     public $name, $locationId;
-    public $updateMode = false;
     public $search = '';
     public $perPage = 5;
     public $sortField = 'name';
@@ -82,7 +81,6 @@ class LocationPage extends Component
     {
         $this->name = '';
         $this->locationId = null;
-        $this->updateMode = false;
     }
 
     public function store()
@@ -128,7 +126,6 @@ class LocationPage extends Component
         $location = Location::findOrFail($id);
         $this->locationId = $id;
         $this->name = $location->name;
-        $this->updateMode = true;
     }
 
     public function delete($id)

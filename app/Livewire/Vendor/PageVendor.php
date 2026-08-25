@@ -27,7 +27,6 @@ class PageVendor extends Component
     public $is_supplier = false;
     public $is_service = false;
 
-    public $updateMode = false;
     public string $search = '';
     public string $sortField = 'created_at';
     public string $sortDirection = 'asc';
@@ -155,7 +154,6 @@ class PageVendor extends Component
         $this->is_supplier = false;
         $this->is_service = false;
         $this->vendorId = null;
-        $this->updateMode = false;
     }
 
     // --------------------------------------------
@@ -246,7 +244,6 @@ class PageVendor extends Component
         $this->phone = $vendor->phone;
         $this->is_supplier = $vendor->is_supplier;
         $this->is_service = $vendor->is_service;
-        $this->updateMode = true;
     }
 
     public function delete($id)

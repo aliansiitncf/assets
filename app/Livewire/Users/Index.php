@@ -3,7 +3,6 @@
 namespace App\Livewire\Users;
 
 use App\Models\User;
-use App\Traits\HasDataTable;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Title;
@@ -20,7 +19,6 @@ class Index extends Component
     public $showModal = false;
     public $modalMode = 'create'; // 'create' or 'edit'
     public $name, $email, $password, $userId, $role_id;
-    public $updateMode = false;
     public string $search = '';
     public string $sortField = 'name';
     public string $sortDirection = 'asc';
@@ -97,7 +95,6 @@ class Index extends Component
         $this->password = '';
         $this->role_id = '';
         $this->userId = null;
-        $this->updateMode = false;
     }
 
     public function store()
@@ -124,7 +121,6 @@ class Index extends Component
         $this->userId = $id;
         $this->name = $user->name;
         $this->email = $user->email;
-        $this->updateMode = true;
     }
 
     public function update()

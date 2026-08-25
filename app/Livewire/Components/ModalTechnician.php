@@ -12,7 +12,6 @@ class ModalTechnician extends Component
     public $technicianId = null;
     public $name, $phone;
     public $isOpen = false;
-    public $message, $messageType = 'success';
 
     protected $listeners = [
         'openTechnicianModal' => 'openModal',
@@ -24,7 +23,6 @@ class ModalTechnician extends Component
         $this->name = '';
         $this->phone = '';
         $this->technicianId = null;
-        $this->message = null;
     }
 
     public function openModal()
@@ -39,7 +37,6 @@ class ModalTechnician extends Component
         $this->technicianId = $id;
         $this->name = $technician->name;
         $this->phone = $technician->phone;
-        $this->message = null;
         $this->isOpen = true;
     }
 

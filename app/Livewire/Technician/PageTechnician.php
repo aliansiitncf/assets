@@ -16,7 +16,6 @@ class PageTechnician extends Component
     public $showModal = false;
     public $modalMode = 'create';
     public $name, $phone, $technicianId;
-    public $updateMode = false;
     public string $search = '';
     public string $sortField = 'created_at';
     public string $sortDirection = 'asc';
@@ -77,7 +76,6 @@ class PageTechnician extends Component
         $this->name = '';
         $this->phone = '';
         $this->technicianId = null;
-        $this->updateMode = false;
     }
 
     // --------------------------------------------
@@ -142,7 +140,6 @@ class PageTechnician extends Component
         $this->technicianId = $id;
         $this->name = $technician->name;
         $this->phone = $technician->phone;
-        $this->updateMode = true;
     }
 
     public function delete($id)

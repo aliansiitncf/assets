@@ -21,7 +21,6 @@ class ModalVendor extends Component
     public $is_service = false;
 
     public $isOpen = false;
-    public $message, $messageType = 'success';
 
     protected $listeners = [
         'openVendorModal' => 'openModal',
@@ -36,7 +35,6 @@ class ModalVendor extends Component
         $this->is_supplier = false;
         $this->is_service = false;
         $this->vendorId = null;
-        $this->message = null;
     }
 
     public function openModal($jenis = null)
@@ -56,7 +54,6 @@ class ModalVendor extends Component
         $this->address = $vendor->address;
         $this->is_supplier = $vendor->is_supplier;
         $this->is_service = $vendor->is_service;
-        $this->message = null;
         $this->isOpen = true;
     }
 

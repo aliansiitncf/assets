@@ -20,7 +20,6 @@ class PageCategory extends Component
     public $showModal = false;
     public $modalMode = 'create'; // 'create' or 'edit'
     public $name, $categoryId;
-    public $updateMode = false;
     public string $search = '';
     public string $sortField = 'created_at';
     public string $sortDirection = 'asc';
@@ -84,7 +83,6 @@ class PageCategory extends Component
     {
         $this->name = '';
         $this->categoryId = null;
-        $this->updateMode = false;
     }
 
     public function store()
@@ -134,7 +132,6 @@ class PageCategory extends Component
         $category = Category::findOrFail($id);
         $this->categoryId = $id;
         $this->name = $category->name;
-        $this->updateMode = true;
     }
 
     public function delete($id)

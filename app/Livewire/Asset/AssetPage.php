@@ -31,15 +31,6 @@ class AssetPage extends Component
     public $perPage = 5;
 
     public $asset, $name, $asset_code;
-    public $editIndex = '';
-    public $showComponentModal = false;
-    public $showLocationModal = false;
-
-    public $showMoveForm = false;
-    public $location_id, $moved_at;
-
-    public $locations = [];
-    public $components = [];
 
     // sort
     public $sortField = 'asset_code';
@@ -128,10 +119,6 @@ class AssetPage extends Component
         return redirect()->route('asset.edit', $asset);
     }
 
-    public function cancelEdit()
-    {
-        $this->editIndex = '';
-    }
 
     public function delete($id)
     {
