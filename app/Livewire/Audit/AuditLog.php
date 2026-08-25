@@ -20,7 +20,7 @@ class AuditLog extends Component
     public $startDate, $endDate;
     public string $search = '';
     public string $sortField = 'created_at';
-    public string $sortDirection = 'asc';
+    public string $sortDirection = 'desc';
     public int $perPage = 10;
 
     private function getQuery()
