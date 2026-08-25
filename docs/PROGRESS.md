@@ -12,13 +12,15 @@
   - [x] Component Module
   - [x] Location Module
   - [x] Technician Module
-  - [ ] Vendor Module
+  - [x] Vendor Module
   - [ ] User/Role/Permission Module
   - [ ] Audit Log Module
 
 ## Catatan
-- `docs/coding-standard.md` sudah ada.
-- View modal yang terlihat seperti "orphan" (misal `asset-damage-modal.blade.php`) sebenarnya di `@include` oleh page view-nya. Bukan orphan, tetap dipertahankan unless we want to make them full Livewire components (YAGNI, biarkan saja kalau hanya dipakai di satu tempat).
+- `docs/coding-standard.md` digunakan sebagai acuan.
+- Modal orphan yang berupa `@include` (contoh: `asset-damage-modal.blade.php`) dipertahankan karena bukan orphan sungguhan.
+- Modal components seperti `ModalVendor.php` dan `ModalTechnician.php` sudah direname menyesuaikan konvensi (`VendorModal.php`). Dead code `ModalTechnician` sudah dihapus.
+- Commit terakhir: `f1eb200 refactor(vendor): apply livewire standard`.
 
 ## Next steps
-- Refactor module Asset atau Category sesuai pola standar.
+- Lanjutkan Phase 4 refactor: Asset Module, User/Role/Permission, dan Audit Log.
