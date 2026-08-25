@@ -8,9 +8,9 @@
 ## Belum
 - [ ] Phase 4: Refactor bertahap per modul ikuti pola standar (tanpa ubah behavior).
   - [ ] Asset Module
-  - [ ] Category Module
+  - [x] Category Module
   - [ ] Component Module
-  - [ ] Location Module
+  - [x] Location Module
   - [ ] Technician Module
   - [ ] Vendor Module
   - [ ] User/Role/Permission Module

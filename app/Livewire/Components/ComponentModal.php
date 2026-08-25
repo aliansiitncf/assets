@@ -6,30 +6,30 @@ use App\Enums\AuditEvent;
 use App\Models\Component as ComponentModel;
 use App\Services\AuditService;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 #[Layout('components.layouts.app')]
-class ModalComponent extends Component
+class ComponentModal extends Component
 {
     public $componentId = null;
     public $name_component;
     public $isOpen = false;
 
-    protected $listeners = [
-        'openComponentModal',
-        'editComponentModal',
-    ];
     public function resetInputFields()
     {
         $this->name_component = '';
         $this->componentId = null;
     }
+
+    #[On('openComponentModal')]
     public function openComponentModal()
     {
         $this->resetInputFields();
         $this->isOpen = true;
     }
 
+    #[On('editComponentModal')]
     public function editComponentModal($id)
     {
         $component = ComponentModel::findOrFail($id);
@@ -74,13 +74,18 @@ class ModalComponent extends Component
                 ['name_component' => $this->name_component]
             );
         }
-        session()->flash('message', $this->componentId ? 'Component updated successfully.' : 'Component created successfully.');
-        $this->dispatch('component-saved', component: $component ?? null);
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: $this->componentId ? 'Component updated successfully.' : 'Component created successfully.',
+            icon: 'success'
+        );
+        $this->dispatch('component-saved');
         $this->resetInputFields();
+        $this->isOpen = false;
     }
 
     public function render()
     {
-        return view('livewire.components.modal-component');
+        return view('livewire.components.component-modal');
     }
 }
