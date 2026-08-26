@@ -11,14 +11,9 @@
         </div>
     @endif
 
-    @if (session()->has('message'))
-        <div role="alert" class="alert alert-success alert-soft mt-2 mb-4">
-            <span>{{ session('message') }}</span>
-        </div>
-    @endif
 
     <div class="card bg-base-100 shadow-xl p-6">
-        <form wire:submit.prevent="update">
+        <form wire:submit="update">
             <div class="tabs tabs-lift shadow-md rounded-2xl mt-3">
 
                 {{-- Tab 1: Repair Info --}}
@@ -416,6 +411,40 @@
             </div>
         </form>
 
-        @include('livewire.components.modal-component')
+        
+    @if($isOpen)
+    <div class="modal modal-open">
+        <div class="modal-box">
+            <button type="button" wire:click="$set('isOpen', false)" class="btn btn-sm btn-circle absolute right-2 top-2">✕</button>
+            <h3 class="font-bold text-lg mb-4">
+                {{ $componentId ? 'Edit Component' : 'Add Component' }}
+            </h3>
+
+            <form wire:submit="save">
+                <div class="form-control mb-4">
+                    <label class="label">Nama Component</label>
+                    <input type="text" wire:model="name_component" class="input input-bordered w-full" autofocus />
+                    @error('name_component')
+                    <span class="text-error text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="modal-action">
+                    <button type="button" class="btn btn-secondary" wire:click="$set('isOpen', false)">
+                        Batal
+                    </button>
+                    <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
+                        <span wire:loading.remove>
+                            {{ $componentId ? 'Update' : 'Simpan' }}
+                        </span>
+                        <span wire:loading>Loading...</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="modal-backdrop" wire:click="$set('isOpen', false)"></div>
+    </div>
+    @endif
+
     </div>
 </div>

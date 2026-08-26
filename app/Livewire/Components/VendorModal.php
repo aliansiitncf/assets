@@ -6,13 +6,14 @@ use App\Enums\AuditEvent;
 use App\Models\Vendor as VendorModel;
 use App\Services\AuditService;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Spatie\Activitylog\Models\Activity;
 
 // OpenVendorModal(jenis) => dipanggil dari asset-repair.blade.php 
 
 #[Layout('components.layouts.app')]
-class ModalVendor extends Component
+class VendorModal extends Component
 {
     public $vendorId = null;
     public $name, $phone, $address;
@@ -21,12 +22,6 @@ class ModalVendor extends Component
     public $is_service = false;
 
     public $isOpen = false;
-    public $message, $messageType = 'success';
-
-    protected $listeners = [
-        'openVendorModal' => 'openModal',
-        'editVendorModal' => 'editModal',
-    ];
 
     public function resetInputFields()
     {
@@ -36,9 +31,9 @@ class ModalVendor extends Component
         $this->is_supplier = false;
         $this->is_service = false;
         $this->vendorId = null;
-        $this->message = null;
     }
 
+    #[On('openVendorModal')]
     public function openModal($jenis = null)
     {
         $this->resetInputFields();
@@ -47,6 +42,7 @@ class ModalVendor extends Component
         $this->isOpen = true;
     }
 
+    #[On('editVendorModal')]
     public function editModal($id)
     {
         $vendor = VendorModel::findOrFail($id);
@@ -56,7 +52,6 @@ class ModalVendor extends Component
         $this->address = $vendor->address;
         $this->is_supplier = $vendor->is_supplier;
         $this->is_service = $vendor->is_service;
-        $this->message = null;
         $this->isOpen = true;
     }
 
@@ -144,6 +139,6 @@ class ModalVendor extends Component
 
     public function render()
     {
-        return view('livewire.components.modal-vendor');
+        return view('livewire.components.vendor-modal');
     }
 }

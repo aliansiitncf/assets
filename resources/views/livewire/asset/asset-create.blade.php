@@ -44,7 +44,7 @@
         </div>
     @endif
     {{-- Tab Menu --}}
-    <form wire:submit.prevent="store" class="mt-3" method="POST">
+    <form wire:submit="store" class="mt-3" method="POST">
         <div class="tabs tabs-lift shadow-md rounded-2xl mt-3">
             {{-- Asset --}}
             <label class="tab">
@@ -257,5 +257,5 @@
 
         </div>
     </form>
-    @livewire('components.ModalComponent')
+    @livewire('components.component-modal')
 </div>

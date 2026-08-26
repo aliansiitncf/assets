@@ -1,20 +1,8 @@
 <div class="w-full">
-    @if (session()->has('message'))
-        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)"
-            x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0" role="alert" class="alert alert-success mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>{{ session('message') }}</span>
-        </div>
-    @endif
     <h1 class="text-2xl font-bold">Teknisi Management</h1>
     <div class="flex justify-between items-center mb-4">
         <div class="my-4 flex gap-2 items-center">
-            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search Categories..."
+            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search Technicians..."
                 class="input input-bordered w-full" />
             <select wire:model.live="perPage" class="select select-bordered w-36">
                 <option value="5">5 / page</option>
@@ -69,30 +57,30 @@
     @if ($showModal)
         <div class="modal modal-open">
             <div class="modal-box">
-                <h3 class="font-bold text-lg mb-4">{{ $modalMode === 'create' ? 'Tambah Teknisi' : 'Edit Teknisi' }}
-                </h3>
-                <form wire:submit.prevent="store">
+                <button wire:click="closeModal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</button>
+                <h3 class="font-bold text-lg mb-4">{{ $modalMode === 'create' ? 'Tambah Teknisi' : 'Edit Teknisi' }}</h3>
+                <form wire:submit="store">
                     <div class="form-control mb-4">
                         <label class="label">Nama Teknisi</label>
-                        <input type="text" wire:model.defer="name" class="input input-bordered w-full" />
+                        <input type="text" wire:model="name" class="input input-bordered w-full" />
                         @error('name')
                             <span class="text-red-500 text-sm">{{ $message }}</span>
                         @enderror
                     </div>
                     <div class="form-control mb-4">
                         <label class="label">Nomer HP</label>
-                        <input type="text" wire:model.defer="phone" class="input input-bordered w-full" />
+                        <input type="text" wire:model="phone" class="input input-bordered w-full" />
                         @error('phone')
                             <span class="text-red-500 text-sm">{{ $message }}</span>
                         @enderror
                     </div>
                     <div class="modal-action">
                         <button type="button" wire:click="closeModal" class="btn btn-secondary">Cancel</button>
-                        <button type="submit"
-                            class="btn btn-primary">{{ $modalMode === 'create' ? 'Create' : 'Update' }}</button>
+                        <button type="submit" class="btn btn-primary">{{ $modalMode === 'create' ? 'Create' : 'Update' }}</button>
                     </div>
                 </form>
             </div>
+            <div class="modal-backdrop" wire:click="closeModal"></div>
         </div>
     @endif
 </div>

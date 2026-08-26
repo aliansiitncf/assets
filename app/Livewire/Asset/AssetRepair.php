@@ -14,12 +14,13 @@ use App\Services\ImageService;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 // technician-saved => dipanggil dari ModalVendor.php
 // vendor-saved => dipanggil dari ModalVendor.php
 
-#[Title('Components')]
+#[Title('Asset Repair')]
 #[Layout('components.layouts.app')]
 class AssetRepair extends Component
 {
@@ -52,10 +53,10 @@ class AssetRepair extends Component
     public $vendors = [];
     public $technicians = [];
 
-    protected $listeners = [
-        'technician-saved' => 'refreshTechnicianList',
-        'vendor-saved' => 'refreshVendorList'
-    ];
+        // Removed listeners array
+        
+        
+
 
     public function mount(Asset $asset)
     {
@@ -273,6 +274,7 @@ class AssetRepair extends Component
         $this->isOpen = false;
     }
 
+    #[On('technician-saved')]
     public function refreshTechnicianList($isService = false, $technicianId = null)
     {
         // refresh ulang list teknisi dari database
@@ -282,6 +284,7 @@ class AssetRepair extends Component
         $this->technician_id = $technicianId;
     }
 
+    #[On('vendor-saved')]
     public function refreshVendorList($isSupplier = false, $vendorId = null)
     {
         $this->vendors = VendorModel::where("is_supplier", $isSupplier)->orderBy("name")->get();

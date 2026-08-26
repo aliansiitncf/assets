@@ -9,12 +9,13 @@ use Carbon\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Title('Asset Damaged')]
 #[Layout('components.layouts.app')]
 class PageAssetDamage extends Component
 {
-    use HasAuthorization;
+    use HasAuthorization, WithPagination;
     public $search;
     public $perPage = 10;
     public $showModalPDF = false;

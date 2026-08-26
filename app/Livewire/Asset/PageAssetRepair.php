@@ -69,9 +69,9 @@ class PageAssetRepair extends Component
             $assetRepair->status = 'Completed';
             $assetRepair->completed_at = now();
             $assetRepair->save();
-            session()->flash('success', 'Asset repair marked as completed.');
+            $this->dispatch('swal', title: 'Success!', text: 'Asset repair marked as completed.', icon: 'success');
         } else {
-            session()->flash('error', 'Asset repair not found or already completed.');
+            $this->dispatch('swal', title: 'Error!', text: 'Asset repair not found or already completed.', icon: 'error');
         }
         Asset::where('id_asset', $assetRepair->asset_id)
             ->update(['condition' => 'Baik']);

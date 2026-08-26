@@ -62,7 +62,11 @@ class PermissionPage extends Component
     {
         $this->validate();
         Permission::create(['name'=>$this->name]);
-        session()->flash('message','Permission created successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: 'Permission created successfully.',
+            icon: 'success'
+        );
         $this->resetInputFields();
         $this->closeModal();
     }
@@ -72,7 +76,11 @@ class PermissionPage extends Component
         $this->validate();
         $perm = Permission::findOrFail($this->permissionId);
         $perm->update(['name'=>$this->name]);
-        session()->flash('message','Permission updated successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: 'Permission updated successfully.',
+            icon: 'success'
+        );
         $this->resetInputFields();
         $this->closeModal();
     }
@@ -80,7 +88,11 @@ class PermissionPage extends Component
     public function delete($id)
     {
         Permission::find($id)->delete();
-        session()->flash('message','Permission deleted successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: 'Permission deleted successfully.',
+            icon: 'success'
+        );
     }
 
     public function render()

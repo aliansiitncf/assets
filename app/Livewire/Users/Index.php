@@ -3,7 +3,6 @@
 namespace App\Livewire\Users;
 
 use App\Models\User;
-use App\Traits\HasDataTable;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Title;
@@ -20,7 +19,6 @@ class Index extends Component
     public $showModal = false;
     public $modalMode = 'create'; // 'create' or 'edit'
     public $name, $email, $password, $userId, $role_id;
-    public $updateMode = false;
     public string $search = '';
     public string $sortField = 'name';
     public string $sortDirection = 'asc';
@@ -97,7 +95,6 @@ class Index extends Component
         $this->password = '';
         $this->role_id = '';
         $this->userId = null;
-        $this->updateMode = false;
     }
 
     public function store()
@@ -113,7 +110,11 @@ class Index extends Component
         $roleName = Role::findOrFail($this->role_id)->name;
         $user->assignRole($roleName);
 
-        session()->flash('message', 'User created successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: 'User created successfully.',
+            icon: 'success'
+        );
         $this->resetInputFields();
         $this->closeModal();
     }
@@ -124,7 +125,6 @@ class Index extends Component
         $this->userId = $id;
         $this->name = $user->name;
         $this->email = $user->email;
-        $this->updateMode = true;
     }
 
     public function update()
@@ -148,7 +148,11 @@ class Index extends Component
             $roleName = Role::findOrFail($this->role_id)->name;
             $user->syncRoles($roleName);
         }
-        session()->flash('message', 'User updated successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: 'User updated successfully.',
+            icon: 'success'
+        );
         $this->resetInputFields();
         $this->closeModal();
     }
@@ -156,7 +160,11 @@ class Index extends Component
     public function delete($id)
     {
         User::find($id)->delete();
-        session()->flash('message', 'User deleted successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: 'User deleted successfully.',
+            icon: 'success'
+        );
         $this->resetPageIfEmpty();
     }
 

@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
@@ -31,15 +32,6 @@ class AssetPage extends Component
     public $perPage = 5;
 
     public $asset, $name, $asset_code;
-    public $editIndex = '';
-    public $showComponentModal = false;
-    public $showLocationModal = false;
-
-    public $showMoveForm = false;
-    public $location_id, $moved_at;
-
-    public $locations = [];
-    public $components = [];
 
     // sort
     public $sortField = 'asset_code';
@@ -68,8 +60,7 @@ class AssetPage extends Component
     public $showModalPDF = false;
     public $showModalDetailAset = false;
     public $selectedAsset = null;
-    protected $listeners = ['assetUpdated' => 'refreshAsset', 'closeDetailModal' => 'closeDetail'];
-
+    // Removed listeners array
     public $lastMerks  = [];
 
     // methods general
@@ -128,10 +119,6 @@ class AssetPage extends Component
         return redirect()->route('asset.edit', $asset);
     }
 
-    public function cancelEdit()
-    {
-        $this->editIndex = '';
-    }
 
     public function delete($id)
     {
@@ -148,7 +135,11 @@ class AssetPage extends Component
             ]
         );
         $this->resetPageIfEmpty();
-        return redirect()->route('assets')->with('message', 'Asset deleted successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: 'Asset deleted successfully.',
+            icon: 'success'
+        );
     }
 
     public function repairAsset($asset)
@@ -176,6 +167,7 @@ class AssetPage extends Component
         }
     }
 
+    #[On('closeDetailModal')]
     public function closeDetail()
     {
         $this->showModalDetailAset = false;

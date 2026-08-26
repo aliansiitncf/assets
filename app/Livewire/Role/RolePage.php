@@ -107,7 +107,11 @@ class RolePage extends Component
         $role = Role::create(['name' => $this->name]);
         $role->syncPermissions(Permission::whereIn('id', $this->permissions)->get());
 
-        session()->flash('message', 'Role created successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: 'Role created successfully.',
+            icon: 'success'
+        );
         $this->resetInputFields();
         $this->closeModal();
     }
@@ -120,7 +124,11 @@ class RolePage extends Component
         $role->update(['name' => $this->name]);
         $role->syncPermissions(Permission::whereIn('id', $this->permissions)->get());
 
-        session()->flash('message', 'Role updated successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: 'Role updated successfully.',
+            icon: 'success'
+        );
         $this->resetInputFields();
         $this->closeModal();
     }
@@ -128,7 +136,11 @@ class RolePage extends Component
     public function delete($id)
     {
         Role::find($id)->delete();
-        session()->flash('message', 'Role deleted successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: 'Role deleted successfully.',
+            icon: 'success'
+        );
         $this->resetPageIfEmpty();
     }
 

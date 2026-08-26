@@ -27,7 +27,7 @@
                 </p>
             </div>
             {{-- Form --}}
-            <form wire:submit.prevent="login" class="space-y-5">
+            <form wire:submit="login" class="space-y-5">
                 {{-- Email --}}
                 <div>
                     <label class="text-sm text-gray-700">Username</label>

@@ -20,7 +20,6 @@ class PageCategory extends Component
     public $showModal = false;
     public $modalMode = 'create'; // 'create' or 'edit'
     public $name, $categoryId;
-    public $updateMode = false;
     public string $search = '';
     public string $sortField = 'created_at';
     public string $sortDirection = 'asc';
@@ -84,7 +83,6 @@ class PageCategory extends Component
     {
         $this->name = '';
         $this->categoryId = null;
-        $this->updateMode = false;
     }
 
     public function store()
@@ -97,7 +95,11 @@ class PageCategory extends Component
             ['id_category' => $this->categoryId],
             ['name' => $this->name]
         );
-        session()->flash('message', $this->categoryId ? 'Category updated successfully.' : 'Category created successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: $this->categoryId ? 'Category updated successfully.' : 'Category created successfully.',
+            icon: 'success'
+        );
 
         if ($this->modalMode === 'edit' && $oldCategory) {
             $auditData = [
@@ -134,7 +136,6 @@ class PageCategory extends Component
         $category = Category::findOrFail($id);
         $this->categoryId = $id;
         $this->name = $category->name;
-        $this->updateMode = true;
     }
 
     public function delete($id)
@@ -150,7 +151,11 @@ class PageCategory extends Component
                 'name' => $category->name,
             ]
         );
-        session()->flash('message', 'Category deleted successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: 'Category deleted successfully.',
+            icon: 'success'
+        );
         $this->resetPageIfEmpty();
     }
 

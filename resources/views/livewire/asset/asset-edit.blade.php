@@ -44,7 +44,7 @@
         </div>
     @endif
     {{-- Tab Menu --}}
-    <form wire:submit.prevent="update" method="post">
+    <form wire:submit="update" method="post">
         <div class="tabs tabs-lift shadow-md rounded-2xl mt-3">
             {{-- Asset --}}
             <label class="tab">
@@ -260,5 +260,5 @@
             <a href="{{ route('assets') }}" type="button" class="btn btn-error">cancel</a>
         </div>
     </form>
-    @livewire('components.ModalComponent')
+    @livewire('components.component-modal')
 </div>

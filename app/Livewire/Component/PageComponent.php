@@ -11,6 +11,8 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+use Livewire\Attributes\On;
+
 #[Title('Components')]
 #[Layout('components.layouts.app')]
 class PageComponent extends Component
@@ -22,10 +24,12 @@ class PageComponent extends Component
     public string $sortDirection = 'asc';
     public int $perPage = 10;
 
+    #[On('component-saved')]
+    public function refreshList()
+    {
+        // just refresh via listener
+    }
 
-    protected $listeners = [
-        'component-saved' => '$refresh'
-    ];
     private function getQuery()
     {
         return AssComponent::query()
@@ -72,7 +76,11 @@ class PageComponent extends Component
                 'name_component' => $component->name_component,
             ]
         );
-        session()->flash('message', 'Component deleted successfully.');
+        $this->dispatch('swal', 
+            title: 'Success!',
+            text: 'Component deleted successfully.',
+            icon: 'success'
+        );
         $this->resetPageIfEmpty();
     }
     public function render()
