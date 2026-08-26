@@ -43,7 +43,7 @@
             </tbody>
         </table>
         <div class="p-3">
-            {{ $locations->links() }}
+            {{ $locations->links('vendor.pagination.custom') }}
         </div>
 
     </div>
@@ -53,7 +53,8 @@
         <div class="modal modal-open">
             <div class="modal-box">
                 <button wire:click="closeModal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</button>
-                <h3 class="font-bold text-lg mb-4">{{ $modalMode === 'create' ? 'Add New location' : 'Edit location' }}</h3>
+                <h3 class="font-bold text-lg mb-4">{{ $modalMode === 'create' ? 'Add New location' : 'Edit location' }}
+                </h3>
                 <form wire:submit="store">
                     <div class="form-control mb-4">
                         <label class="label">Name</label>
@@ -64,7 +65,8 @@
                     </div>
                     <div class="modal-action">
                         <button type="button" wire:click="closeModal" class="btn btn-secondary">Cancel</button>
-                        <button type="submit" class="btn btn-primary">{{ $modalMode === 'create' ? 'Create' : 'Update' }}</button>
+                        <button type="submit"
+                            class="btn btn-primary">{{ $modalMode === 'create' ? 'Create' : 'Update' }}</button>
                     </div>
                 </form>
             </div>
