@@ -13,6 +13,7 @@ function initThemeToggle() {
 
     const savedTheme = localStorage.getItem("theme") ?? LIGHT_THEME;
     document.documentElement.setAttribute("data-theme", savedTheme);
+    document.cookie = `theme=${savedTheme}; path=/; max-age=31536000`; // Sync for SSR
 
     if (!toggle) return;
 
@@ -25,6 +26,7 @@ function initThemeToggle() {
         const theme = fresh.checked ? DARK_THEME : LIGHT_THEME;
         localStorage.setItem("theme", theme);
         document.documentElement.setAttribute("data-theme", theme);
+        document.cookie = `theme=${theme}; path=/; max-age=31536000`; // Sync for SSR
     });
 }
 
