@@ -138,6 +138,23 @@ class PageAssetRepair extends Component
         );
     }
 
+    public function exportCharts($format, $poinImg, $biayaImg)
+    {
+        $filename = 'repair-charts-' . now()->format('Y-m-d');
+        
+        if ($format === 'pdf') {
+            $pdf = Pdf::loadView('exports.asset-repair-charts-pdf', [
+                'poinImg' => $poinImg,
+                'biayaImg' => $biayaImg,
+                'startDate' => $this->startDate,
+                'endDate' => $this->endDate,
+            ]);
+            return response()->streamDownload(fn() => print($pdf->output()), $filename . '.pdf');
+        } elseif ($format === 'excel') {
+            return Excel::download(new \App\Exports\AssetRepairChartsExport($poinImg, $biayaImg), $filename . '.xlsx');
+        }
+    }
+
     public function render()
     {
         $assets = Asset::query()
