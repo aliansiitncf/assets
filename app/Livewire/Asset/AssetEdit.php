@@ -19,7 +19,7 @@ class AssetEdit extends Component
 {
     use WithFileUploads;
     public Asset $asset;
-    public $categories;
+
 
     public $asset_code, $name, $category_id, $purchase_date, $image, $status;
 
@@ -28,8 +28,7 @@ class AssetEdit extends Component
 
     public $locationForm;
 
-    // Locations
-    public $locations, $location_id, $details, $moved_at;
+    public $location_id, $details, $moved_at;
 
     // Detail tambahan (tab Detail): array of ['name' => '', 'value' => '']
     public array $detailItems = [];
@@ -50,8 +49,7 @@ class AssetEdit extends Component
         $this->category_id = $asset->category_id;
         $this->purchase_date = $asset->purchase_date?->format('Y-m-d');
         $this->status = $asset->status;
-        $this->locations = Location::select('id_location', 'name')->get();
-        $this->categories = Category::select('id_category', 'name')->get();
+
 
         $this->components = $asset->components
             ->pluck('id_component')
@@ -202,7 +200,7 @@ class AssetEdit extends Component
             );
         }
 
-        if (!empty($this->location_id) && !empty($this->details) && !empty($this->moved_at)) {
+        if (!empty($this->location_id) || !empty($this->details) || !empty($this->moved_at)) {
             $this->validate([
                 'location_id' => 'required',
                 'details' => 'required',
@@ -342,6 +340,9 @@ class AssetEdit extends Component
     }
     public function render()
     {
-        return view('livewire.asset.asset-edit');
+        return view('livewire.asset.asset-edit', [
+            'categories' => Category::select('id_category', 'name')->get(),
+            'locations' => Location::select('id_location', 'name')->get(),
+        ]);
     }
 }

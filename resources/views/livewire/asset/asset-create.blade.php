@@ -60,12 +60,13 @@
                 <fieldset class="fieldset">
                     <div>
                         <legend class="fieldset-legend">Category</legend>
-                        <select class="select select-accent w-full" wire:model.live="category_id">
+                        <select class="select select-accent w-full @error('category_id') select-error @enderror" wire:model.live="category_id">
                             <option value="">Select Category</option>
                             @foreach ($categories as $category)
                                 <option value="{{ $category->id_category }}">{{ $category->name }}</option>
                             @endforeach
                         </select>
+                        @error('category_id') <span class="text-error text-xs">{{ $message }}</span> @enderror
                     </div>
                     <div>
                         <legend class="fieldset-legend">Asset Code</legend>
@@ -73,17 +74,20 @@
                     </div>
                     <div>
                         <legend class="fieldset-legend">Name</legend>
-                        <input type="text" class="input input-accent w-full" wire:model="name" autofocus />
+                        <input type="text" class="input input-accent w-full @error('name') input-error @enderror" wire:model="name" autofocus />
+                        @error('name') <span class="text-error text-xs">{{ $message }}</span> @enderror
                     </div>
                     <div>
                         <legend class="fieldset-legend">Purchase Date</legend>
-                        <input type="date" class="input input-accent w-full" wire:model="purchase_date" />
+                        <input type="date" class="input input-accent w-full @error('purchase_date') input-error @enderror" wire:model="purchase_date" />
+                        @error('purchase_date') <span class="text-error text-xs">{{ $message }}</span> @enderror
                     </div>
                     <div class="flex justify-start items-center space-x-3">
                         <div>
                             <legend class="fieldset-legend">Pick Image</legend>
-                            <input type="file" accept="image/*" class="file-input" wire:model.live="image" />
+                            <input type="file" accept="image/*" class="file-input @error('image') file-input-error @enderror" wire:model.live="image" />
                             <label class="label">Max size 2MB</label>
+                            @error('image') <span class="text-error text-xs block">{{ $message }}</span> @enderror
                             {{-- Spinner saat loading --}}
                             <span wire:loading wire:target="image"
                                 class="loading loading-spinner loading-md ml-2 mt-2"></span>
@@ -227,21 +231,24 @@
             <div class="tab-content bg-base-100 border-base-300 p-6">
                 <div>
                     <legend class="fieldset-legend">Location</legend>
-                    <select wire:model="location_id" class="select select-accent w-full">
+                    <select wire:model="location_id" class="select select-accent w-full @error('location_id') select-error @enderror">
                         <option value="">Select Location</option>
                         @foreach ($locations as $location)
                             <option value="{{ $location->id_location }}">{{ $location->name }}</option>
                         @endforeach
                     </select>
+                    @error('location_id') <span class="text-error text-xs">{{ $message }}</span> @enderror
                 </div>
                 <div>
                     <legend class="fieldset-legend">Detail Location</legend>
-                    <input type="text" class="input input-accent w-full" wire:model="details"
+                    <input type="text" class="input input-accent w-full @error('details') input-error @enderror" wire:model="details"
                         placeholder="Detail Location" />
+                    @error('details') <span class="text-error text-xs">{{ $message }}</span> @enderror
                 </div>
                 <div>
                     <legend class="fieldset-legend">Date</legend>
-                    <input type="date" class="input input-accent w-full" wire:model="moved_at" />
+                    <input type="date" class="input input-accent w-full @error('moved_at') input-error @enderror" wire:model="moved_at" />
+                    @error('moved_at') <span class="text-error text-xs">{{ $message }}</span> @enderror
                 </div>
             </div>
         </div>

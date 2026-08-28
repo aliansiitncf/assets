@@ -60,12 +60,13 @@
                 <fieldset class="fieldset">
                     <div>
                         <legend class="fieldset-legend">Category</legend>
-                        <select class="select select-accent w-full" wire:model="category_id">
+                        <select class="select select-accent w-full @error('category_id') select-error @enderror" wire:model="category_id">
                             <option value="">Select Category</option>
                             @foreach ($categories as $category)
                                 <option value="{{ $category->id_category }}">{{ $category->name }}</option>
                             @endforeach
                         </select>
+                        @error('category_id') <span class="text-error text-xs">{{ $message }}</span> @enderror
                     </div>
                     <div>
                         <legend class="fieldset-legend">Asset Code</legend>
@@ -73,11 +74,13 @@
                     </div>
                     <div>
                         <legend class="fieldset-legend">Name</legend>
-                        <input type="text" class="input input-accent w-full" wire:model="name" />
+                        <input type="text" class="input input-accent w-full @error('name') input-error @enderror" wire:model="name" />
+                        @error('name') <span class="text-error text-xs">{{ $message }}</span> @enderror
                     </div>
                     <div>
                         <legend class="fieldset-legend">Purchase Date</legend>
-                        <input type="date" class="input input-accent w-full" wire:model="purchase_date" />
+                        <input type="date" class="input input-accent w-full @error('purchase_date') input-error @enderror" wire:model="purchase_date" />
+                        @error('purchase_date') <span class="text-error text-xs">{{ $message }}</span> @enderror
                     </div>
                     <div class="flex justify-start items-center space-x-3">
                         <div>
@@ -232,21 +235,24 @@
                 @if ($locationForm)
                     <div>
                         <legend class="fieldset-legend">Location</legend>
-                        <select wire:model="location_id" class="select select-accent w-full">
+                        <select wire:model="location_id" class="select select-accent w-full @error('location_id') select-error @enderror">
                             <option value="">Select Location</option>
                             @foreach ($locations as $location)
                                 <option value="{{ $location->id_location }}">{{ $location->name }}</option>
                             @endforeach
                         </select>
+                        @error('location_id') <span class="text-error text-xs">{{ $message }}</span> @enderror
                     </div>
                     <div>
                         <legend class="fieldset-legend">Detail Location</legend>
-                        <input type="text" class="input input-accent w-full" wire:model="details"
+                        <input type="text" class="input input-accent w-full @error('details') input-error @enderror" wire:model="details"
                             placeholder="Detail Location" />
+                        @error('details') <span class="text-error text-xs">{{ $message }}</span> @enderror
                     </div>
                     <div>
                         <legend class="fieldset-legend">Date</legend>
-                        <input type="date" class="input input-accent w-full" wire:model="moved_at" />
+                        <input type="date" class="input input-accent w-full @error('moved_at') input-error @enderror" wire:model="moved_at" />
+                        @error('moved_at') <span class="text-error text-xs">{{ $message }}</span> @enderror
                     </div>
                 @endif
             </div>

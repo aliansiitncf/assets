@@ -21,13 +21,13 @@ class AssetCreate extends Component
 {
     use WithFileUploads;
     // Assets
-    public $asset_code, $categories, $purchase_date, $name, $image, $category_id;
+    public $asset_code, $purchase_date, $name, $image, $category_id;
 
     // Components
     public $name_component, $components = [];
 
     // Asset Location Histories
-    public $locations, $location_id, $details, $moved_at;
+    public $location_id, $details, $moved_at;
 
     public $search = '';
     public $results;
@@ -43,8 +43,6 @@ class AssetCreate extends Component
 
     public function mount()
     {
-        $this->categories = Category::select('id_category', 'name')->get();
-        $this->locations = Location::select('id_location', 'name')->get();
         $this->generateAssetCodeAndPurchaseDate();
 
         $this->results = collect();
@@ -188,17 +186,21 @@ class AssetCreate extends Component
 
     public function store(ImageService $imageService)
     {
-        $this->validate([
+        $rules = [
             'asset_code' => 'required',
             'image' => ['nullable', 'image', 'max:2048'],
             'name' => 'required',
             'category_id' => 'required',
             'purchase_date' => 'required',
-            // locations
-            'location_id' => 'required',
-            'details' => 'required',
-            'moved_at' => 'required',
-        ]);
+        ];
+
+        if (!empty($this->location_id) || !empty($this->details) || !empty($this->moved_at)) {
+            $rules['location_id'] = 'required';
+            $rules['details'] = 'required';
+            $rules['moved_at'] = 'required|date';
+        }
+
+        $this->validate($rules);
 
         $imagePath = null;
 
@@ -219,11 +221,13 @@ class AssetCreate extends Component
 
         $asset->components()->sync($this->components);
 
-        $asset->assets_histories()->create([
-            'location_id' => $this->location_id,
-            'details' => $this->details,
-            'moved_at' => $this->moved_at,
-        ]);
+        if (!empty($this->location_id) && !empty($this->details) && !empty($this->moved_at)) {
+            $asset->assets_histories()->create([
+                'location_id' => $this->location_id,
+                'details' => $this->details,
+                'moved_at' => $this->moved_at,
+            ]);
+        }
 
         foreach ($this->detailItems as $item) {
 
@@ -265,6 +269,9 @@ class AssetCreate extends Component
 
     public function render()
     {
-        return view('livewire.asset.asset-create');
+        return view('livewire.asset.asset-create', [
+            'categories' => Category::select('id_category', 'name')->get(),
+            'locations' => Location::select('id_location', 'name')->get(),
+        ]);
     }
 }
