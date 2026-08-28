@@ -192,13 +192,10 @@ class AssetCreate extends Component
             'name' => 'required',
             'category_id' => 'required',
             'purchase_date' => 'required',
+            'location_id' => 'required',
+            'details' => 'required',
+            'moved_at' => 'required|date',
         ];
-
-        if (!empty($this->location_id) || !empty($this->details) || !empty($this->moved_at)) {
-            $rules['location_id'] = 'required';
-            $rules['details'] = 'required';
-            $rules['moved_at'] = 'required|date';
-        }
 
         $this->validate($rules);
 
